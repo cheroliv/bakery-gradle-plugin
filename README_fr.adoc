@@ -93,7 +93,7 @@ Maintenant, appliquez le plugin dans votre `build.gradle.kts` et pointez-le vers
 ----
 plugins {
     // Appliquer le plugin
-    id("com.cheroliv.bakery") version "0.0.1"
+    id("com.cheroliv.bakery") version "0.0.2"
 }
 
 // Configurer le chemin vers votre fichier de paramètres YAML
