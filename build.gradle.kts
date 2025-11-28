@@ -3,7 +3,7 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType.BIN
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin.jvm)
-    id("com.cheroliv.bakery") version "0.0.1"
+    id("com.cheroliv.bakery") version libs.plugins.bakery.get().version
 }
 
 group = "com.cheroliv"

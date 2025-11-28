@@ -28,5 +28,5 @@ jobs:
           java-version: '24'
           
       - name: Push website
-        run: echo "${{ secrets.CHEROLIV_MIGRATION_CONFIG }}" > site.yml; ./gradlew -q -s publishSite
+        run: echo "${{ secrets.BAKERY_GRADLE_PLUGIN }}" > site.yml; ./gradlew -q -s publishSite
 
