@@ -94,7 +94,7 @@ Replace "bakery-version" with the current version: {bakery-version}
 [source,toml]
 ----
 [versions]
-bakery = "{bakery-version}"
+bakery = "bakery-version"
 
 [plugins]
 bakery = { id = "com.cheroliv.bakery", version.ref = "bakery" }
