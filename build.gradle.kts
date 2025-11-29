@@ -1,13 +1,6 @@
+import com.cheroliv.bakery.FileSystemManager.readSiteConfiguration
+import com.cheroliv.bakery.SiteConfiguration
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType.BIN
-
-buildscript {
-    repositories.mavenCentral()
-    arrayOf(
-        "commons-configuration:commons-configuration:1.10",
-        "org.asciidoctor:asciidoctorj-diagram:3.0.1",
-        "org.asciidoctor:asciidoctorj-diagram-plantuml:1.2025.3",
-    ).map { dependencies.classpath(it) }
-}
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -19,16 +12,7 @@ bakery { configPath = file("site.yml").absolutePath }
 val jbakeRuntime: Configuration by configurations.creating {
     description = "Classpath for running Jbake core directly"
 }
-jbake {
-    srcDirName = "site".run(project::file).path
-    destDirName = "bake".run(project.layout.buildDirectory.get()::file).asFile.path
-    configuration["asciidoctor.option.requires"] = "asciidoctor-diagram"
-    configuration["asciidoctor.attributes"] = arrayOf(
-        "sourceDir=${projectDir}",
-        "imagesDir=diagrams",
-        "imagesoutdir=${tasks.bake.get().input}/assets/diagrams"
-    )
-}
+
 dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.kotlinx.coroutines.core)
@@ -51,7 +35,7 @@ dependencies {
         libs.jackson.databind.yaml,
     ).forEach { testImplementation(it) }
 
-    jbakeRuntime("org.jbake:jbake-core:2.7.0-rc.7")
+    jbakeRuntime("org.jbake:jbake-core:2.6.7")
     arrayOf(
         "commons-configuration:commons-configuration:1.10",
         "org.asciidoctor:asciidoctorj-diagram:3.0.1",
@@ -62,6 +46,10 @@ dependencies {
 tasks.register<JavaExec>("serve") {
     group = "bakery"
     description = "Serves the baked site locally."
+    val site: SiteConfiguration = readSiteConfiguration(
+        project,
+        project.file(bakery.configPath)
+    )
     mainClass.set("org.jbake.launcher.Main")
     classpath = jbakeRuntime
     environment("GEM_PATH", configurations.getByName("jbakeRuntime").asPath)
@@ -73,11 +61,11 @@ tasks.register<JavaExec>("serve") {
     )
     args = listOf(
         "-b",
-        "site"
+        site.bake.srcPath
             .run(project::file)
             .absolutePath,
         "-s",
-        "bake"
+        site.bake.destDirPath
             .run(project.layout.buildDirectory.get().asFile::resolve)
             .absolutePath,
     )
