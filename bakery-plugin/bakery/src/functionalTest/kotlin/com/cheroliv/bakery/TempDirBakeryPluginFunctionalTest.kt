@@ -464,7 +464,7 @@ Group
 
         private val buildScriptListOfStringContained = listOf(
             """alias(libs.plugins.bakery)""".trimIndent(),
-            """bakery { configPath = file("site.yml").absolutePath }""".trimIndent(),
+            """bakery { configPath = file("$CONFIG_FILE").absolutePath }""".trimIndent(),
         )
         private val settingsListOfStringContained = listOf(
             "pluginManagement", "repositories",

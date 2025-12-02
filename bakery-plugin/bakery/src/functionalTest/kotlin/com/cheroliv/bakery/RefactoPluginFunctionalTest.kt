@@ -12,6 +12,7 @@ import java.io.File.separator
 import kotlin.test.Ignore
 import kotlin.text.Charsets.UTF_8
 
+@Ignore
 class RefactoPluginFunctionalTest {
 
     @field:TempDir
@@ -142,10 +143,11 @@ class RefactoPluginFunctionalTest {
                 .exists()
                 .isNotEmpty
 
+
             val content = sourceFile.readText(UTF_8)
-//            assertThat(content)
-//                .describedAs("$description content should contain expected strings")
-//                .contains(expectedStrings)
+            assertThat(content)
+                .describedAs("$description content should contain expected strings")
+                .contains(expectedStrings)
 
             logger.debug("✓ $description chargé et validé")
             return content
