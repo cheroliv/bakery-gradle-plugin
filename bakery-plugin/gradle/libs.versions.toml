@@ -1,5 +1,5 @@
 [versions]
-bakery = "0.0.3"
+bakery = "0.0.4"
 ktor = "3.3.0"
 commons-io = "2.13.0"
 commons-configuration = "1.10"

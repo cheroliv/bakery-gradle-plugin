@@ -1,4 +1,5 @@
 [versions]
+bakery = "0.0.4"
 ktor = "3.3.0"
 commons-io = "2.13.0"
 commons-configuration = "1.10"
@@ -37,7 +38,6 @@ gradle = "9.2.0"
 playwright = "1.40.0"
 assertj = "3.27.6"
 assertj-swing = "3.17.1"
-bakery = "0.0.3"
 
 [libraries]
 asciidoctorj-diagram = { group = "org.asciidoctor", name = "asciidoctorj-diagram", version.ref = "asciidoctorj-diagram" }

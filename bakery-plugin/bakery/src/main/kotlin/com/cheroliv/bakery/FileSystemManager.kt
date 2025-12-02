@@ -76,7 +76,9 @@ object FileSystemManager {
             }${
                 bake.destDirPath
             }${separator}${CNAME}"
-        ).run {
+        ).apply {
+            parentFile.mkdirs()
+        }.run {
             if (exists() && isDirectory) {
                 project.logger.info("$name exists as directory.")
                 deleteRecursively()

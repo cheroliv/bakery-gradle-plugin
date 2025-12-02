@@ -1,5 +1,6 @@
 package com.cheroliv.bakery
 
+import com.cheroliv.bakery.FileSystemManager.createCnameFile
 import com.cheroliv.bakery.FileSystemManager.parseSiteConfiguration
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.api.Action
@@ -9,14 +10,18 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.*
 import java.io.File
 import java.util.*
+import kotlin.text.Charsets.UTF_8
 
 class BakeryPluginTest {
 
@@ -379,6 +384,122 @@ class BakeryPluginTest {
             plugin.apply(project)
 
 
+        }
+    }
+
+    @Nested
+    inner class FileSystemManagerTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        private lateinit var project: Project
+
+        @BeforeEach
+        fun `setup project`() {
+            project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+        }
+
+        private fun createFakeSiteConfiguration(cname: String?) = SiteConfiguration(
+            bake = BakeConfiguration(srcPath = "site", destDirPath = "bake", cname = cname),
+            pushPage = GitPushConfiguration(
+                from = "", to = "", repo = RepositoryConfiguration(
+                    name = "", repository = "", credentials = RepositoryCredentials(username = "", password = "")
+                ), branch = "", message = ""
+            ),
+            pushMaquette = GitPushConfiguration(
+                from = "", to = "", repo = RepositoryConfiguration(
+                    name = "", repository = "", credentials = RepositoryCredentials("", "")
+                ), branch = "", message = ""
+            )
+        )
+
+        @Test
+        fun `createCnameFile should create CNAME file with correct content when cname is provided`() {
+            // Given
+            val siteConfiguration = createFakeSiteConfiguration("test.cheroliv.com")
+            project.layout.buildDirectory.get().asFile.mkdirs()
+            val expectedCnameFile = project.layout.buildDirectory.file(
+                "${siteConfiguration.bake.destDirPath}/CNAME"
+            ).get().asFile
+
+            // When
+            siteConfiguration.createCnameFile(project)
+
+            // Then
+            assertThat(expectedCnameFile).exists().isFile
+            assertThat(expectedCnameFile.readText(UTF_8)).isEqualTo("test.cheroliv.com")
+        }
+
+        @Test
+        fun `createCnameFile should do nothing if cname is null`() {
+            // Given
+            val siteConfiguration = createFakeSiteConfiguration(null)
+            project.layout.buildDirectory.get().asFile.mkdirs()
+            val cnameFile = project.layout.buildDirectory.file(
+                "${siteConfiguration.bake.destDirPath}/CNAME"
+            ).get().asFile
+
+            // When
+            siteConfiguration.createCnameFile(project)
+
+            // Then
+            assertThat(cnameFile).doesNotExist()
+        }
+
+        @Test
+        fun `createCnameFile should do nothing if cname is blank`() {
+            // Given
+            val siteConfiguration = createFakeSiteConfiguration("   ")
+            project.layout.buildDirectory.get().asFile.mkdirs()
+            val cnameFile = project.layout.buildDirectory.file(
+                "${siteConfiguration.bake.destDirPath}/CNAME"
+            ).get().asFile
+
+            // When
+            siteConfiguration.createCnameFile(project)
+
+            // Then
+            assertThat(cnameFile).doesNotExist()
+        }
+
+        @Test
+        fun `createCnameFile should overwrite existing CNAME file`() {
+            // Given
+            val siteConfiguration = createFakeSiteConfiguration("new.cheroliv.com")
+            project.layout.buildDirectory.get().asFile.mkdirs()
+            val cnameFile = project.layout.buildDirectory.file(
+                "${siteConfiguration.bake.destDirPath}/CNAME"
+            ).get().asFile
+            cnameFile.parentFile.mkdirs()
+            cnameFile.writeText("old.cheroliv.com", UTF_8)
+
+            // When
+            siteConfiguration.createCnameFile(project)
+
+            // Then
+            assertThat(cnameFile).exists().isFile
+            assertThat(cnameFile.readText(UTF_8)).isEqualTo("new.cheroliv.com")
+        }
+
+        @Test
+        fun `createCnameFile should replace existing CNAME directory`() {
+            // Given
+            val siteConfiguration = createFakeSiteConfiguration("another.cheroliv.com")
+            project.layout.buildDirectory.get().asFile.mkdirs()
+            val cnameFile = project.layout.buildDirectory.file(
+                "${siteConfiguration.bake.destDirPath}/CNAME"
+            ).get().asFile
+
+            cnameFile.mkdirs()
+            assertThat(cnameFile).exists().isDirectory
+
+            // When
+            siteConfiguration.createCnameFile(project)
+
+            // Then
+            assertThat(cnameFile).exists().isFile
+            assertThat(cnameFile.readText(UTF_8)).isEqualTo("another.cheroliv.com")
         }
     }
 }
