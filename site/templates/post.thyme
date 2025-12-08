@@ -33,7 +33,7 @@
                         s.src = url;
                         (document.head || document.body).appendChild(s);
                     }
-                })({'disqus_shortname': 'cheroliv', 'document': document});
+                })({'disqus_shortname': 'disqus_username', 'document': document});
                 /*]]>*/
             </script>
             <noscript>
