@@ -1,5 +1,3 @@
-import com.cheroliv.bakery.FileSystemManager.readSiteConfiguration
-import com.cheroliv.bakery.SiteConfiguration
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType.BIN
 
 plugins {
