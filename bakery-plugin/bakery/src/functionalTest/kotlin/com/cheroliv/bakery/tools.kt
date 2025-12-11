@@ -1,11 +1,11 @@
 package com.cheroliv.bakery
 
-import com.cheroliv.bakery.Deps.deps
+import com.cheroliv.bakery.FuncTestsConstants.deps
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
+import java.io.File.separator
 import java.io.IOException
 import kotlin.text.Charsets.UTF_8
-
 
 fun File.createBuildScriptFile() {
     resolve("build.gradle.kts").run {
@@ -85,11 +85,57 @@ fun File.createConfigFile() {
     configFile?.copyTo(resolve("site.yml"), true)
 }
 
-object Deps {
+object FuncTestsConstants {
     const val BAKERY_GROUP = "bakery"
     const val BAKE_TASK = "bake"
-    private const val CNAME = "CNAME"
-    const val SITE_YML = "site.yml"
+    const val CNAME = "CNAME"
+    const val CONFIG_FILE = "site.yml"
+    const val BUILD_FILE = "build.gradle.kts"
+    const val SETTINGS_FILE = "settings.gradle.kts"
+    const val GRADLE_DIR = "gradle"
+    const val LIBS_VERSIONS_TOML_FILE = "libs.versions.toml"
+    val LIBS_FILE = "$GRADLE_DIR$separator$LIBS_VERSIONS_TOML_FILE"
+    val PATH_GAP = "..$separator..$separator"
+    val CONFIG_PATH = "${PATH_GAP}$CONFIG_FILE"
+    val BUILD_FILE_PATH = "${PATH_GAP}$BUILD_FILE"
+    val SETTINGS_FILE_PATH = "${PATH_GAP}$SETTINGS_FILE"
+    val LIBS_VERSIONS_TOML_FILE_PATH = "${PATH_GAP}$GRADLE_DIR${separator}$LIBS_VERSIONS_TOML_FILE"
+    val buildScriptListOfStringContained = listOf(
+        """alias(libs.plugins.bakery)""".trimIndent(),
+        """bakery { configPath = file("$CONFIG_FILE").absolutePath }""".trimIndent(),
+    )
+    val settingsListOfStringContained = listOf(
+        "pluginManagement", "repositories",
+        "mavenLocal()", "gradlePluginPortal()",
+        "mavenCentral()", "google()",
+        "dependencyResolutionManagement",
+        "rootProject.name", "bakery"
+    )
+    val tomlListOfStringContained = listOf(
+        "[versions]",
+        "[libraries]",
+        "[plugins]",
+        "[bundles]",
+    )
+    val configListOfStringContained = listOf(
+        "bake:", "srcPath:", "destDirPath:",
+        "cname:", "pushPage:", "from:", "to:",
+        "repo:", "name:", "repository:",
+        "credentials:", "username:",
+        "password:", "branch:", "message:",
+        "pushMaquette:", "supabase:",
+        "project:", "url:", "publicKey:",
+        "schema:", "type:", "contacts:",
+        "name:", "public.contacts",
+        "columns:", "uuid", "text", "id",
+        "created_at", "name", "email",
+        "telephone", "rlsEnabled: true",
+        "messages:", "public.messages", "rpc:",
+        "name:", "params:", "timestamptz",
+        "contact_id", "subject", "message",
+        "public.handle_contact_form", "p_name",
+        "p_email", "p_subject", "p_message",
+    )
     val deps = """
             [versions]
             bakery = "0.0.6"
