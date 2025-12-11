@@ -238,16 +238,16 @@ Group
         private val configFile by lazy { projectDir.resolve(CONFIG_FILE) }
 
 
-        private val buildScriptListOfStringContained = listOf(
+        val buildScriptListOfStringContained = listOf(
                 """alias(libs.plugins.bakery)""".trimIndent(),
                 """bakery { configPath = file("$CONFIG_FILE").absolutePath }""".trimIndent(),
             )
-        private val settingsListOfStringContained = listOf(
+        val settingsListOfStringContained = listOf(
             "pluginManagement", "repositories",
             "mavenLocal()", "gradlePluginPortal()",
             "mavenCentral()", "google()",
             "dependencyResolutionManagement",
-            "rootProject.name", "bakery-gradle-plugin"
+            "rootProject.name", "bakery"
         )
         val tomlListOfStringContained = listOf(
             "[versions]",

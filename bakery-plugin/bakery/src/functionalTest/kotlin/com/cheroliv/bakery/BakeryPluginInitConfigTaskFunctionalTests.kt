@@ -2,7 +2,9 @@
 
 package com.cheroliv.bakery
 
+import com.cheroliv.bakery.BakeryPluginFunctionalTests.Companion.buildScriptListOfStringContained
 import com.cheroliv.bakery.BakeryPluginFunctionalTests.Companion.configListOfStringContained
+import com.cheroliv.bakery.BakeryPluginFunctionalTests.Companion.settingsListOfStringContained
 import com.cheroliv.bakery.BakeryPluginFunctionalTests.Companion.tomlListOfStringContained
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner.create
@@ -50,10 +52,19 @@ class BakeryPluginInitConfigTaskFunctionalTests {
         projectDir.createDependenciesFile()
         projectDir.createConfigFile()
         assertThat(projectDir.configFile.readText(UTF_8))
+            .describedAs("Config file should contains expectedStrings ; $configListOfStringContained")
             .contains(configListOfStringContained)
-        info("site.yml file successfully created.")
+
         assertThat(projectDir.resolve("gradle/libs.versions.toml").readText(UTF_8))
+            .describedAs("libsVersionsTomlFile should contains the given list of strings")
             .contains(tomlListOfStringContained)
+        assertThat(projectDir.resolve("build.gradle.kts").readText(UTF_8))
+            .describedAs("buildFile should contains the given list of strings")
+            .contains(buildScriptListOfStringContained)
+        assertThat(projectDir.resolve("settings.gradle.kts").readText(UTF_8))
+            .describedAs("settingsFile should contains the given list of strings")
+            .contains(settingsListOfStringContained.toMutableList().apply {  add("bakery-test")})
+        info("gradle and site.yml files successfully created.")
     }
 
     @Test
