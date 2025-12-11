@@ -1,7 +1,22 @@
+@file:Suppress("FunctionName")
+
 package com.cheroliv.bakery
 
-import com.cheroliv.bakery.Deps.BAKERY_GROUP
-import com.cheroliv.bakery.Deps.BAKE_TASK
+import com.cheroliv.bakery.FuncTestsConstants.BAKERY_GROUP
+import com.cheroliv.bakery.FuncTestsConstants.BAKE_TASK
+import com.cheroliv.bakery.FuncTestsConstants.BUILD_FILE
+import com.cheroliv.bakery.FuncTestsConstants.BUILD_FILE_PATH
+import com.cheroliv.bakery.FuncTestsConstants.CONFIG_FILE
+import com.cheroliv.bakery.FuncTestsConstants.CONFIG_PATH
+import com.cheroliv.bakery.FuncTestsConstants.GRADLE_DIR
+import com.cheroliv.bakery.FuncTestsConstants.LIBS_VERSIONS_TOML_FILE
+import com.cheroliv.bakery.FuncTestsConstants.LIBS_VERSIONS_TOML_FILE_PATH
+import com.cheroliv.bakery.FuncTestsConstants.SETTINGS_FILE
+import com.cheroliv.bakery.FuncTestsConstants.SETTINGS_FILE_PATH
+import com.cheroliv.bakery.FuncTestsConstants.buildScriptListOfStringContained
+import com.cheroliv.bakery.FuncTestsConstants.configListOfStringContained
+import com.cheroliv.bakery.FuncTestsConstants.settingsListOfStringContained
+import com.cheroliv.bakery.FuncTestsConstants.tomlListOfStringContained
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.AfterEach
@@ -22,16 +37,16 @@ class BakeryPluginFunctionalTests {
     @Test
     fun `phase 1 - all project files are created correctly`() {
         "Test: Creation of all project files"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
 
         // Verify file paths are correct
         assertThat(buildFile)
             .exists()
         assertThat(settingsFile.path)
-            .isEqualTo("${projectDir.path}${separator}${SETTINGS_FILE}")
+            .isEqualTo("${projectDir.path}$separator$SETTINGS_FILE")
         assertThat(libsVersionsTomlFile.path)
-            .isEqualTo("${projectDir.path}${separator}${GRADLE_DIR}${separator}${LIBS_VERSIONS_TOML_FILE}")
+            .isEqualTo("${projectDir.path}$separator$GRADLE_DIR$separator$LIBS_VERSIONS_TOML_FILE")
         assertThat(configFile.path)
             .isEqualTo("${projectDir.path}${separator}${CONFIG_FILE}")
 
@@ -45,14 +60,14 @@ class BakeryPluginFunctionalTests {
             .isNotZero
 
         "✓ All files were created successfully"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
     @Test
     fun `phase 1 - config file can be created and validated independently`() {
         "Test: Creation and validation of the configuration file"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
         assertThat(configFile)
             .describedAs("Config file should be created")
@@ -61,14 +76,14 @@ class BakeryPluginFunctionalTests {
             .describedAs("Config file should contains expectedStrings ; $configListOfStringContained")
             .contains(configListOfStringContained)
         "✓ Configuration file created and validated"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
     @Test
     fun `phase 1 - gradle directory structure is created correctly`() {
         "Test: Creation of the gradle/ structure"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
 
         assertThat(gradleDir)
@@ -84,7 +99,7 @@ class BakeryPluginFunctionalTests {
             .contains(LIBS_VERSIONS_TOML_FILE)
 
         "✓ gradle/ structure created successfully"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
@@ -95,7 +110,7 @@ class BakeryPluginFunctionalTests {
     @Test
     fun `phase 2 - plugin can read configuration from file`() {
         "Test: The plugin can read the configuration file"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
 
         buildFile
@@ -116,7 +131,7 @@ class BakeryPluginFunctionalTests {
             .contains("publishMaquette", "publishSite")
 
         "✓ Plugin reads the configuration correctly"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
@@ -124,7 +139,7 @@ class BakeryPluginFunctionalTests {
     @Test
     fun `phase 2 - help task bake command retrieves name and description successfully`() {
         "Test: The bake task executes successfully"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
 
         val result = create()
@@ -157,7 +172,7 @@ Group
             )
 
         "✓ Bake task executed successfully"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
@@ -169,7 +184,7 @@ Group
     fun `phase 3 - complete workflow from bake to push executes successfully`() {
 //        "Phase 3 - Future: End-to-end workflow testing"
         "Test: Complete workflow from bake to push"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
 
         // TODO: Implement complete workflow test
@@ -180,7 +195,7 @@ Group
         // 5. Verify push result
 
         "✓ Complete workflow executed successfully"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
@@ -188,7 +203,7 @@ Group
     fun `phase 3 - plugin handles missing configuration gracefully`() {
 //        "Phase 3 - Future: Error handling testing"
         "Test: Handling of missing configuration errors"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
 
         // TODO: Test error scenarios
@@ -197,7 +212,7 @@ Group
         // - Missing required fields
 
         "✓ Errors handled correctly"
-            .apply(logger::info)
+            .apply(log::info)
             .apply(::println)
     }
 
@@ -207,28 +222,18 @@ Group
         "✓ Test finished: ${testInfo.displayName}",
         "─".repeat(60)
     ).forEach {
-        it.apply(logger::info)
+        it.apply(log::info)
             .apply(::println)
     }
 
+
     companion object {
-        private val logger = getLogger(BakeryPluginFunctionalTests::class.java)
+        private val log = getLogger(BakeryPluginFunctionalTests::class.java)
         private val projectDir: File = ""
             .run(::File)
             .absoluteFile
             .parentFile
             .parentFile
-        private const val CONFIG_FILE = "site.yml"
-        private const val BUILD_FILE = "build.gradle.kts"
-        private const val SETTINGS_FILE = "settings.gradle.kts"
-        private const val GRADLE_DIR = "gradle"
-        private const val LIBS_VERSIONS_TOML_FILE = "libs.versions.toml"
-
-        private val PATH_GAP = "..$separator..$separator"
-        private val CONFIG_PATH = "${PATH_GAP}$CONFIG_FILE"
-        private val BUILD_FILE_PATH = "${PATH_GAP}$BUILD_FILE"
-        private val SETTINGS_FILE_PATH = "${PATH_GAP}$SETTINGS_FILE"
-        private val LIBS_VERSIONS_TOML_FILE_PATH = "${PATH_GAP}$GRADLE_DIR${separator}$LIBS_VERSIONS_TOML_FILE"
 
         //Create settings files in temporary directory
         private val buildFile by lazy { projectDir.resolve(BUILD_FILE) }
@@ -237,55 +242,17 @@ Group
         private val gradleDir by lazy { projectDir.resolve(GRADLE_DIR) }
         private val configFile by lazy { projectDir.resolve(CONFIG_FILE) }
 
-
-        val buildScriptListOfStringContained = listOf(
-                """alias(libs.plugins.bakery)""".trimIndent(),
-                """bakery { configPath = file("$CONFIG_FILE").absolutePath }""".trimIndent(),
-            )
-        val settingsListOfStringContained = listOf(
-            "pluginManagement", "repositories",
-            "mavenLocal()", "gradlePluginPortal()",
-            "mavenCentral()", "google()",
-            "dependencyResolutionManagement",
-            "rootProject.name", "bakery"
-        )
-        val tomlListOfStringContained = listOf(
-            "[versions]",
-            "[libraries]",
-            "[plugins]",
-            "[bundles]",
-        )
-        val configListOfStringContained = listOf(
-            "bake:", "srcPath:", "destDirPath:",
-            "cname:", "pushPage:", "from:", "to:",
-            "repo:", "name:", "repository:",
-            "credentials:", "username:",
-            "password:", "branch:", "message:",
-            "pushMaquette:", "supabase:",
-            "project:", "url:", "publicKey:",
-            "schema:", "type:", "contacts:",
-            "name:", "public.contacts",
-            "columns:", "uuid", "text", "id",
-            "created_at", "name", "email",
-            "telephone", "rlsEnabled: true",
-            "messages:", "public.messages", "rpc:",
-            "name:", "params:", "timestamptz",
-            "contact_id", "subject", "message",
-            "public.handle_contact_form", "p_name",
-            "p_email", "p_subject", "p_message",
-        )
-
         @BeforeAll
         @JvmStatic
         fun `load configuration content before all tests`() {
 
             "Setup test"
-                .apply(logger::debug)
+                .apply(log::debug)
                 .apply(::println)
 
             // Check every files are prepared but do not exist yet!
             "prepare test environment"
-                .apply(logger::debug)
+                .apply(log::debug)
                 .apply(::println)
 
             assertThat(gradleDir)
@@ -379,7 +346,7 @@ Group
 
             "Initialisation"
                 .apply(::println)
-                .apply(logger::info)
+                .apply(log::info)
 
             assertThat(projectDir)
                 .describedAs("projectDir should not be an empty directory now that configFile is created and written")
