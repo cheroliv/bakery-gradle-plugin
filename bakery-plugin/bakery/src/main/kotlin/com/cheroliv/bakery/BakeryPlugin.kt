@@ -15,10 +15,11 @@ import java.io.File.separator
 @Suppress("unused")
 class BakeryPlugin : Plugin<Project> {
     companion object {
-        private const val BAKERY_GROUP = "bakery"
+        const val BAKERY_GROUP = "bakery"
         private const val BAKE_TASK = "bake"
         private const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
         private const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
+        private const val CNAME = "CNAME"
     }
 
     override fun apply(project: Project) {
@@ -68,8 +69,8 @@ class BakeryPlugin : Plugin<Project> {
                 }
             }
 
-            project.tasks.register("publishMaquette") {
-                it.run {
+            project.tasks.register("publishMaquette") { task ->
+                task.run {
                     group = BAKERY_GROUP
                     description = "Publish maquette online."
                     val uiDir: File = project
@@ -104,6 +105,13 @@ class BakeryPlugin : Plugin<Project> {
                             project.logger
                         )
                     }
+                }
+            }
+
+            project.tasks.register("initConfig") { task ->
+                task.run {
+                    group = BAKERY_GROUP
+                    description = "Initialize configuration."
                 }
             }
         }
@@ -160,8 +168,13 @@ class BakeryPlugin : Plugin<Project> {
             }
 
             project.tasks.withType(JBakeTask::class.java)
-                .getByName(BAKE_TASK)
-                .input = project.file(site.bake.srcPath)
+                .getByName(BAKE_TASK).apply {
+                    input = project.file(site.bake.srcPath)
+                    output = project.layout.buildDirectory
+                        .dir(site.bake.destDirPath)
+                        .get()
+                        .asFile
+                }
 
             // Tâche de configuration GitHub
             project.tasks.register("configureGitHub") { task ->
@@ -404,4 +417,4 @@ class BakeryPlugin : Plugin<Project> {
         }
     }
 }
- */
+*/

@@ -118,6 +118,7 @@ class BakeryPluginFunctionalTests {
             .apply(::println)
     }
 
+    @Suppress("FunctionName")
     @Test
     fun `phase 2 - help task bake command retrieves name and description successfully`() {
         "Test: The bake task executes successfully"
