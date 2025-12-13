@@ -42,6 +42,7 @@ class BakeryPluginInitConfigTaskFunctionalTests {
 
     private fun File.deleteConfigFile(): Boolean = configFile.delete()
 
+
     @Test
     fun `test initConfig task exists without config file when running tasks`() {
         projectDir.deleteConfigFile()
@@ -55,7 +56,17 @@ class BakeryPluginInitConfigTaskFunctionalTests {
             .build()
         assertThat(result.output)
             .describedAs("""Gradle task tasks output should contains 'initConfig' and 'Initialize configuration.'""")
-            .contains("Initialize Bakery configuration.", "initConfig")
+            .contains("initConfig", "Initialize Bakery configuration.")
+        assertThat(result.output)
+            .describedAs("""Gradle task tasks output should not contains 'publishSite' and 'Publish site online.'""")
+            .doesNotContain("publishSite", "Publish site online.")
+        assertThat(result.output)
+            .describedAs("""Gradle task tasks output should not contains 'publishMaquette' and 'Publish maquette online.'""")
+            .doesNotContain("publishMaquette", "Publish maquette online.")
+        assertThat(result.output)
+            .describedAs("""Gradle task tasks output should not contains 'serve' and 'Serves the baked site locally.'""")
+            .doesNotContain("serve", "Serves the baked site locally.")
+
         info("✓ tasks displays the initConfig task's description correctly without config file.")
     }
 
