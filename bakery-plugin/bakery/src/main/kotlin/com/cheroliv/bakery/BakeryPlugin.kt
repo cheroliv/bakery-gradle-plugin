@@ -13,13 +13,13 @@ import java.io.File
 import java.io.File.separator
 
 
-@Suppress("unused")
 class BakeryPlugin : Plugin<Project> {
     companion object {
         const val BAKERY_GROUP = "bakery"
         const val BAKE_TASK = "bake"
         const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
         const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
+        @Suppress("unused")
         const val CNAME = "CNAME"
     }
 
@@ -273,7 +273,7 @@ class BakeryPlugin : Plugin<Project> {
 
         var input: String?
         do {
-            input = readLine()
+            input = readlnOrNull()
             if (input.isNullOrBlank()) {
                 logger.warn("$propertyName cannot be empty. Please try again.")
                 print("Enter $propertyName$exampleText: ")

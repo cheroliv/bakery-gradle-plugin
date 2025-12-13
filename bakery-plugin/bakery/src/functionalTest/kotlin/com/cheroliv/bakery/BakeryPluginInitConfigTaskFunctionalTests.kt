@@ -14,9 +14,7 @@ import com.cheroliv.bakery.FuncTestsConstants.settingsListOfStringContained
 import com.cheroliv.bakery.FuncTestsConstants.tomlListOfStringContained
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner.create
-import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
@@ -39,12 +37,10 @@ class BakeryPluginInitConfigTaskFunctionalTests {
     private lateinit var projectDir: File
 
     private val File.configFile: File
-        get() = when (absolutePath) {
-            projectDir.absolutePath -> resolve(CONFIG_FILE)
-            else -> projectDir.resolve(CONFIG_FILE)
-        }
+        get() = if (absolutePath == projectDir.absolutePath) resolve(CONFIG_FILE)
+        else projectDir.resolve(CONFIG_FILE)
 
-    fun File.deleteConfigFile(): Boolean = configFile.delete()
+    private fun File.deleteConfigFile(): Boolean = configFile.delete()
 
     @Test
     fun `test initConfig task exists without config file when running tasks`() {
@@ -90,7 +86,7 @@ class BakeryPluginInitConfigTaskFunctionalTests {
                 .withProjectDir(projectDir)
                 .build()
         }
-        info("✓ without config file, the project fails to build.")
+        info("✓ without config file, the project does not fail to build.")
     }
 
 
