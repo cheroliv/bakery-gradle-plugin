@@ -1,5 +1,5 @@
 [versions]
-bakery = "0.0.7"
+bakery = "0.0.8"
 commons-io = "2.13.0"
 jgit = "6.10.0.202406032230-r"
 slf4j = "2.0.17"

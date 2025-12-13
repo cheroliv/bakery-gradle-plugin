@@ -1,5 +1,5 @@
 [versions]
-bakery = "0.0.7"
+bakery = "0.0.8"
 jbake = "2.6.7"
 asciidoctorj-diagram = "3.0.1"
 asciidoctorj-diagram-plantuml = "1.2025.3"

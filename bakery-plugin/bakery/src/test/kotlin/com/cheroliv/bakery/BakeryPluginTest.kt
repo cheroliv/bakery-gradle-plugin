@@ -79,7 +79,13 @@ class BakeryPluginTest {
         whenever(mockVersionCatalogsExtension.named("libs")).thenReturn(mockLibsCatalog)
 
         whenever(mockJbakeRuntimeConfiguration.name).thenReturn("jbakeRuntime")
+        whenever(mockJbakeRuntimeConfiguration.asPath).thenReturn("/mock/classpath")
 
+        // CORRECTION IMPORTANTE : Gérer les deux cas d'appel de create()
+        // Cas 1 : create(String) sans Action
+        whenever(mockConfigurationContainer.create(eq("jbakeRuntime"))).thenReturn(mockJbakeRuntimeConfiguration)
+
+        // Cas 2 : create(String, Action) avec Action (pour compatibilité)
         whenever(mockConfigurationContainer.create(eq("jbakeRuntime"), any<Action<Configuration>>())).doAnswer { invocation ->
             val action = invocation.arguments[1] as Action<Configuration>
             action.execute(mockJbakeRuntimeConfiguration)
@@ -135,6 +141,10 @@ class BakeryPluginTest {
         whenever(mockProject.extensions).thenReturn(mockExtensionContainer)
         whenever(mockProject.configurations).thenReturn(mockConfigurationContainer)
         whenever(mockProject.dependencies).thenReturn(mockDependencyHandler)
+
+        // CORRECTION : Mock pour DependencyHandler.add()
+        whenever(mockDependencyHandler.add(any(), any())).thenReturn(mock<Dependency>())
+
         whenever(mockProject.tasks).thenReturn(mockTaskContainer)
         whenever(mockProject.plugins).thenReturn(mockPluginContainer)
         whenever(mockProject.layout).thenReturn(mockProjectLayout)
@@ -158,6 +168,7 @@ class BakeryPluginTest {
         whenever(mockTaskContainer.register(eq("publishSite"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
         whenever(mockTaskContainer.register(eq("publishMaquette"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
         whenever(mockTaskContainer.register(eq("initConfig"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
+        whenever(mockTaskContainer.register(eq("serve"), eq(org.gradle.api.tasks.JavaExec::class.java), any<Action<org.gradle.api.tasks.JavaExec>>())).thenReturn(mock())
 
         // Set up afterEvaluate to execute immediately
         whenever(mockProject.afterEvaluate(any<Action<Project>>())).doAnswer { invocation ->
@@ -233,7 +244,7 @@ class BakeryPluginTest {
                 .describedAs("SiteConfiguration.pushMaquette.from should be 'maquette'")
                 .isEqualTo("maquette")
             assertThat(config.pushMaquette.to)
-                .describedAs("SiteConfiguration.pushMaquette.to should be 'maquette'")
+                .describedAs("SiteConfiguration.pushMaquette.to should be 'cvs'")
                 .isEqualTo("cvs")
             assertThat(config.pushMaquette.repo.name)
                 .describedAs("SiteConfiguration.pushMaquette.repo.name should be 'cheroliv-maquette'")
