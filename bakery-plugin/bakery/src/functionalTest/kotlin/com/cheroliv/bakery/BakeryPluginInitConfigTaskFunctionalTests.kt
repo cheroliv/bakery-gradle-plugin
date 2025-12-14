@@ -24,7 +24,7 @@ import kotlin.test.Test
 import kotlin.text.Charsets.UTF_8
 
 
-class BakeryPluginInitConfigTaskFunctionalTests {
+class BakeryPluginconfigureSiteTaskFunctionalTests {
     companion object {
         private val log: Logger by lazy { getLogger(BakeryPluginInitSiteTaskFunctionalTests::class.java) }
 
@@ -45,30 +45,30 @@ class BakeryPluginInitConfigTaskFunctionalTests {
 
     /**
      * # Mode interactif
-     * ./gradlew initConfig
+     * ./gradlew configureSite
      *
      * # Avec paramètres
-     * ./gradlew initConfig \
+     * ./gradlew configureSite \
      *   -PGitHubToken=ghp_xxx \
      *   -PGitHubUsername=username \
      *   -PGitHubRepositoryURL=https://github.com/username/repo.git
      *
      * # Mode non-interactif (échoue si paramètres manquants)
-     * ./gradlew initConfig --no-interactive -PGitHubUsername=username
+     * ./gradlew configureSite --no-interactive -PGitHubUsername=username
      */
     @Test
     @Ignore
-    fun `test initConfig task without config file`() {
+    fun `test configureSite task without config file`() {
         projectDir.deleteConfigFile()
         info("$CONFIG_FILE file successfully deleted.")
-        info("Run gradle task: initConfig.")
+        info("Run gradle task: configureSite.")
         val result = create()
             .forwardOutput()
             .withPluginClasspath()
-            .withArguments("initConfig", "--group=$BAKERY_GROUP")
+            .withArguments("configureSite", "--group=$BAKERY_GROUP")
             .withProjectDir(projectDir)
             .build()
-//        ```./gradlew initConfig \
+//        ```./gradlew configureSite \
 //        -PGitHubToken=ghp_xxx \
 //        -PGitHubUsername=cheroliv \
 //        -PGitHubRepositoryURL=https://github.com/cheroliv/bakery.git```
@@ -77,7 +77,7 @@ class BakeryPluginInitConfigTaskFunctionalTests {
 
 
     @Test
-    fun `test initConfig task exists without config file when running tasks`() {
+    fun `test configureSite task exists without config file when running tasks`() {
         projectDir.deleteConfigFile()
         info("$CONFIG_FILE file successfully deleted.")
         info("Run gradle task :tasks --group=$BAKERY_GROUP.")
@@ -88,8 +88,8 @@ class BakeryPluginInitConfigTaskFunctionalTests {
             .withProjectDir(projectDir)
             .build()
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should contains 'initConfig' and 'Initialize configuration.'""")
-            .contains("initConfig", "Initialize Bakery configuration.")
+            .describedAs("""Gradle task tasks output should contains 'configureSite' and 'Initialize configuration.'""")
+            .contains("configureSite", "Initialize Bakery configuration.")
         assertThat(result.output)
             .describedAs("""Gradle task tasks output should not contains 'publishSite' and 'Publish site online.'""")
             .doesNotContain("publishSite", "Publish site online.")
@@ -100,7 +100,7 @@ class BakeryPluginInitConfigTaskFunctionalTests {
             .describedAs("""Gradle task tasks output should not contains 'serve' and 'Serves the baked site locally.'""")
             .doesNotContain("serve", "Serves the baked site locally.")
 
-        info("✓ tasks displays the initConfig task's description correctly without config file.")
+        info("✓ tasks displays the configureSite task's description correctly without config file.")
     }
 
 
@@ -113,9 +113,9 @@ class BakeryPluginInitConfigTaskFunctionalTests {
             .withProjectDir(projectDir)
             .build()
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should contains 'initConfig' and 'Initialize configuration.'""")
-            .contains("Initialize Bakery configuration.", "initConfig")
-        info("✓ tasks displays the initConfig task's description correctly.")
+            .describedAs("""Gradle task tasks output should contains 'configureSite' and 'Initialize configuration.'""")
+            .contains("Initialize Bakery configuration.", "configureSite")
+        info("✓ tasks displays the configureSite task's description correctly.")
     }
 
     @Test

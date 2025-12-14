@@ -102,7 +102,7 @@ The plugin provides an interactive configuration helper to set up your `site.yml
 
 [source,bash]
 ----
-./gradlew initConfig
+./gradlew configureSite
 ----
 
 This task will prompt you for:
@@ -240,7 +240,7 @@ The Bakery plugin provides the following tasks:
 |===
 |Task |Description
 
-|`initConfig`
+|`configureSite`
 |Interactive configuration helper to set up GitHub credentials and `site.yml`
 
 |`bake`

@@ -102,7 +102,7 @@ Le plugin fournit un assistant de configuration interactif pour configurer votre
 
 [source,bash]
 ----
-./gradlew initConfig
+./gradlew configureSite
 ----
 
 Cette tâche vous demandera :
@@ -240,7 +240,7 @@ Le plugin Bakery fournit les tâches suivantes :
 |===
 |Tâche |Description
 
-|`initConfig`
+|`configureSite`
 |Assistant de configuration interactif pour configurer les identifiants GitHub et `site.yml`
 
 |`bake`

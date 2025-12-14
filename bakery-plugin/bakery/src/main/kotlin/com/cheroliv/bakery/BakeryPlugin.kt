@@ -49,7 +49,7 @@ class BakeryPlugin : Plugin<Project> {
         project.afterEvaluate {
             // If site.yml does not exist then jbakeExtension is not configured,
             // publishSite and publishMaquette not registered.
-            // Only initConfig is available
+            // Only configureSite is available
             if (!project.layout.projectDirectory.asFile.resolve(bakeryExtension.configPath.get()).exists()) {
                 "config file does not exists"
                     .apply(::println)
@@ -167,7 +167,7 @@ class BakeryPlugin : Plugin<Project> {
 
 
 
-        project.tasks.register("initConfig") { task ->
+        project.tasks.register("configureSite") { task ->
             task.run {
                 group = BAKERY_GROUP
                 description = "Initialize Bakery configuration."
@@ -262,7 +262,7 @@ class BakeryPlugin : Plugin<Project> {
         project.afterEvaluate {
             // If site.yml does not exist then jbakeExtension is not configured,
             // publishSite and publishMaquette not registered.
-            // Only initConfig is available
+            // Only configureSite is available
             if (!project.layout.projectDirectory.asFile.resolve(extension.configPath.get()).exists()) {
                 "config file does not exists"
                     .apply(::println)
@@ -397,7 +397,7 @@ class BakeryPlugin : Plugin<Project> {
             }
         }
 
-        project.tasks.register("initConfig") { task ->
+        project.tasks.register("configureSite") { task ->
             task.run {
                 group = BAKERY_GROUP
                 description = "Initialize Bakery configuration."

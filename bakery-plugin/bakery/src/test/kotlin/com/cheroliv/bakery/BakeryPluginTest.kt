@@ -167,7 +167,7 @@ class BakeryPluginTest {
         whenever(mockTaskContainer.register(any<String>(), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
         whenever(mockTaskContainer.register(eq("publishSite"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
         whenever(mockTaskContainer.register(eq("publishMaquette"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
-        whenever(mockTaskContainer.register(eq("initConfig"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
+        whenever(mockTaskContainer.register(eq("configureSite"), any<Action<org.gradle.api.Task>>())).thenReturn(mock())
         whenever(mockTaskContainer.register(eq("serve"), eq(org.gradle.api.tasks.JavaExec::class.java), any<Action<org.gradle.api.tasks.JavaExec>>())).thenReturn(mock())
 
         // Set up afterEvaluate to execute immediately
