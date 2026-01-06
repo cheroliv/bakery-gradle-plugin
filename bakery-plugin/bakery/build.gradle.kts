@@ -34,11 +34,24 @@ dependencies {
     api(libs.jgit.ssh)
     api(libs.jgit.archive)
     api(libs.xz)
+
+    // Cucumber dependencies
+    testImplementation("io.cucumber:cucumber-java:7.33.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
+    testImplementation("io.cucumber:cucumber-picocontainer:7.33.0")
+    testImplementation("org.junit.platform:junit-platform-suite:6.0.1")
+
 }
 
 kotlin.jvmToolchain(21)
 
-tasks.withType<Test> { useJUnitPlatform() }
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+}
 
 val functionalTest: SourceSet by sourceSets.creating
 
@@ -50,7 +63,34 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
 
 configurations[functionalTest.implementationConfigurationName]
     .extendsFrom(configurations.testImplementation.get())
+// Configuration des source sets pour Cucumber
+sourceSets {
+    test {
+        resources {
+            srcDir("src/test/features")
+        }
+        java {
+            srcDir("src/test/scenarios")
+        }
+    }
+}
+// Tâche dédiée aux tests Cucumber
+val cucumberTest = tasks.register<Test>("cucumberTest") {
+    description = "Runs Cucumber BDD tests"
+    group = "verification"
 
+    useJUnitPlatform {
+        includeTags("cucumber")
+    }
+
+    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    systemProperty("cucumber.plugin", "pretty, html:build/reports/cucumber.html, json:build/reports/cucumber.json")
+
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+}
 gradlePlugin {
     plugins {
         create("bakery") {
@@ -58,7 +98,7 @@ gradlePlugin {
             implementationClass = "${libs.plugins.bakery.get().pluginId}.BakeryPlugin"
             displayName = "Bakery Plugin"
             description = "Gradle plugin for static site generation."
-            tags.set(listOf("jbake", "static-site-generator", "blog", "jgit", "asciidoc","markdown","thymeleaf"))
+            tags.set(listOf("jbake", "static-site-generator", "blog", "jgit", "asciidoc", "markdown", "thymeleaf"))
         }
     }
     website = "https://cheroliv.com"
@@ -127,4 +167,7 @@ signing {
     useGpgCmd()
 }
 
-tasks.check { dependsOn(functionalTestTask) }
+tasks.check {
+    dependsOn(functionalTestTask)
+    dependsOn(cucumberTest)
+}

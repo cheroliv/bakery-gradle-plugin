@@ -25,9 +25,9 @@ import java.io.File
 import java.io.File.separator
 import kotlin.text.Charsets.UTF_8
 
-class BakeryPluginFunctionalTests {
+class BakeryPluginProdFunctionalTests {
     companion object {
-        private val log = getLogger(BakeryPluginFunctionalTests::class.java)
+        private val log = getLogger(BakeryPluginProdFunctionalTests::class.java)
         private val projectDir: File = ""
             .run(::File)
             .absoluteFile

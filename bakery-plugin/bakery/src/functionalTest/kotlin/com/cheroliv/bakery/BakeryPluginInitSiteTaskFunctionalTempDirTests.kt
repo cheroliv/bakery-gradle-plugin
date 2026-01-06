@@ -8,10 +8,10 @@ import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class BakeryPluginInitSiteTaskFunctionalTests {
+class BakeryPluginInitSiteTaskFunctionalTempDirTests {
 
     companion object {
-        private val log: Logger by lazy { getLogger(BakeryPluginInitSiteTaskFunctionalTests::class.java) }
+        private val log: Logger by lazy { getLogger(BakeryPluginInitSiteTaskFunctionalTempDirTests::class.java) }
 
         fun info(message: String) {
             message
@@ -25,7 +25,7 @@ class BakeryPluginInitSiteTaskFunctionalTests {
 
     @BeforeTest
     fun prepare() {
-        "${BakeryPluginInitSiteTaskFunctionalTests::class.java.simpleName}.projectDir exists, path: $projectDir"
+        "${BakeryPluginInitSiteTaskFunctionalTempDirTests::class.java.simpleName}.projectDir exists, path: $projectDir"
             .run(::info)
         info("Prepare temporary directory to host gradle build.")
         projectDir.createSettingsFile()
