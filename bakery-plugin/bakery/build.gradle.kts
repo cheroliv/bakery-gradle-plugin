@@ -24,8 +24,6 @@ dependencies {
 
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.slf4j:slf4j-api:2.0.17")
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.5.20")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.1")
     testImplementation(libs.assertj.core)
@@ -68,8 +66,6 @@ dependencies {
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
 
     // Ajouter les dépendances nécessaires explicitement
-    add(functionalTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
-    add(functionalTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.20")
     add(functionalTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
 
     // CORRECTION: Ajouter AssertJ pour les assertions
