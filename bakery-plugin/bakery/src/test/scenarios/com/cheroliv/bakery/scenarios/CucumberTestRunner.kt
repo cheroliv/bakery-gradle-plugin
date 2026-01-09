@@ -13,7 +13,7 @@ import org.junit.platform.suite.api.Suite
 @Suite
 @Testable
 @IncludeEngines("cucumber")
-// CORRECTION: Scanner tous les .feature du classpath
+// Scanner tous les .feature du classpath
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
     value = "classpath:"
