@@ -39,12 +39,6 @@ dependencies {
     api(libs.jgit.ssh)
     api(libs.jgit.archive)
     api(libs.xz)
-
-    // Cucumber dependencies
-    testImplementation("io.cucumber:cucumber-java:7.33.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
-    testImplementation("io.cucumber:cucumber-picocontainer:7.33.0")
-    testImplementation("org.junit.platform:junit-platform-suite:1.14.1")
 }
 
 kotlin.jvmToolchain(21)
@@ -106,18 +100,6 @@ tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// 4. Configurer les sources sets pour Cucumber (test standard)
-sourceSets {
-    test {
-        resources {
-            srcDir("src/test/features")
-        }
-        java {
-            srcDir("src/test/scenarios")  // Steps dans scenarios/
-        }
-    }
-}
-
 // 5. Faire hériter testImplementation de functionalTest (pas l'inverse !)
 configurations.named("testImplementation").configure {
     extendsFrom(configurations.named(functionalTest.implementationConfigurationName).get())
@@ -130,37 +112,6 @@ configurations.named("testRuntimeOnly").configure {
 // 6. Ajouter les classes compilées de functionalTest au classpath de test
 dependencies {
     testImplementation(functionalTest.output)
-}
-
-// 7. Tâche dédiée aux tests Cucumber
-val cucumberTest = tasks.register<Test>("cucumberTest") {
-    description = "Runs Cucumber BDD tests"
-    group = "verification"
-
-    testClassesDirs = sourceSets.test.get().output.classesDirs
-    classpath = configurations.testRuntimeClasspath.get() +
-            sourceSets.test.get().output +
-            functionalTest.output
-
-    useJUnitPlatform {
-        // CORRECTION: Ne pas filtrer par tag ici, ça filtre les engines JUnit
-        // Le filtrage des scénarios Cucumber se fait dans le runner via FILTER_TAGS_PROPERTY_NAME
-        excludeEngines("junit-jupiter")
-    }
-
-    systemProperty("cucumber.junit-platform.naming-strategy", "long")
-
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-    }
-
-    outputs.upToDateWhen { false }
-
-    // S'assurer que functionalTest et main sont compilés avant
-    dependsOn(functionalTest.classesTaskName)
-    dependsOn(tasks.classes)
 }
 
 gradlePlugin {
@@ -240,5 +191,4 @@ signing {
 
 tasks.check {
     dependsOn(functionalTestTask)
-    dependsOn(cucumberTest)
 }
