@@ -23,9 +23,9 @@ import kotlin.test.Test
 import kotlin.text.Charsets.UTF_8
 
 
-class BakeryPluginConfigureSiteTaskFunctionalTempDirTests {
+class BakeryPluginFunctionalTests {
     companion object {
-        private val log: Logger by lazy { getLogger(BakeryPluginConfigureSiteTaskFunctionalTempDirTests::class.java) }
+        private val log: Logger by lazy { getLogger(BakeryPluginFunctionalTests::class.java) }
 
         private fun info(message: String) = message
             .apply(log::info)
