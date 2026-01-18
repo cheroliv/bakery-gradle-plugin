@@ -1,17 +1,17 @@
 [versions]
 bakery = "0.0.8"
-jbake = "2.6.7"
-asciidoctorj-diagram = "3.0.1"
-asciidoctorj-diagram-plantuml = "1.2025.3"
-commons-configuration = "1.10"
+#jbake = "2.6.7"
+#asciidoctorj-diagram = "3.0.1"
+#asciidoctorj-diagram-plantuml = "1.2025.3"
+#commons-configuration = "1.10"
 gradle = "9.2.1"
 kotlin = "2.2.20"
 
 [libraries]
-jbake = { group = "org.jbake", name = "jbake-core", version.ref = "jbake" }
-asciidoctorj-diagram = { group = "org.asciidoctor", name = "asciidoctorj-diagram", version.ref = "asciidoctorj-diagram" }
-asciidoctorj-diagram-plantuml = { group = "org.asciidoctor", name = "asciidoctorj-diagram-plantuml", version.ref = "asciidoctorj-diagram-plantuml" }
-commons-configuration = { group = "commons-configuration", name = "commons-configuration", version.ref = "commons-configuration" }
+#jbake = { group = "org.jbake", name = "jbake-core", version.ref = "jbake" }
+#asciidoctorj-diagram = { group = "org.asciidoctor", name = "asciidoctorj-diagram", version.ref = "asciidoctorj-diagram" }
+#asciidoctorj-diagram-plantuml = { group = "org.asciidoctor", name = "asciidoctorj-diagram-plantuml", version.ref = "asciidoctorj-diagram-plantuml" }
+#commons-configuration = { group = "commons-configuration", name = "commons-configuration", version.ref = "commons-configuration" }
 gradle-tooling-api = { group = "org.gradle", name = "gradle-tooling-api", version.ref = "gradle" }
 
 [plugins]
