@@ -1,13 +1,9 @@
 [versions]
 bakery = "0.0.8"
-gradle = "9.2.1"
-kotlin = "2.2.20"
 
 [libraries]
-gradle-tooling-api = { group = "org.gradle", name = "gradle-tooling-api", version.ref = "gradle" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 bakery = { id = "com.cheroliv.bakery", version.ref = "bakery" }
 
 [bundles]
