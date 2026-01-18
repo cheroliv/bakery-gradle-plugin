@@ -8,6 +8,7 @@ import com.cheroliv.bakery.FuncTestsConstants.BAKE_TASK
 import com.cheroliv.bakery.FuncTestsConstants.BUILD_FILE
 import com.cheroliv.bakery.FuncTestsConstants.CONFIG_FILE
 import com.cheroliv.bakery.FuncTestsConstants.GRADLE_DIR
+import com.cheroliv.bakery.FuncTestsConstants.JBAKE_TASK_SEQUENCE
 import com.cheroliv.bakery.FuncTestsConstants.LIBS_FILE
 import com.cheroliv.bakery.FuncTestsConstants.LIBS_VERSIONS_TOML_FILE
 import com.cheroliv.bakery.FuncTestsConstants.SETTINGS_FILE
@@ -204,6 +205,28 @@ class BakeryPluginFunctionalTests {
         info("Do template folder exist in default path : src/jbake?")
         // Est ce que le dossier src/jbake existe?
     }
+    @Suppress("FunctionName")
+    @Test
+    fun `phase 2 - help task bake command retrieves name and description successfully`() {
+        "Test: The bake task executes successfully"
+            .apply(log::info)
+            .apply(::println)
+
+        val result = create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("help", "--task", BAKE_TASK)
+            .forwardOutput()
+            .build()
+
+        assertThat(result.output)
+            .describedAs("Gradle task bake output should contains bake help description")
+            .contains(JBAKE_TASK_SEQUENCE.trimIndent())
+
+        "✓ Bake task executed successfully"
+            .apply(log::info)
+            .apply(::println)
+    }
 
     // ========================================================================
     // PHASE 1: File Setup Tests
@@ -358,44 +381,4 @@ class BakeryPluginFunctionalTests {
 
     //TODO: WIP there, testing differents type of configuration like gradle.properties, yaml file or cli parameters
 
-    @Suppress("FunctionName")
-    @Test
-    fun `phase 2 - help task bake command retrieves name and description successfully`() {
-        "Test: The bake task executes successfully"
-            .apply(log::info)
-            .apply(::println)
-
-        val result = create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("help", "--task", BAKE_TASK)
-            .forwardOutput()
-            .build()
-
-        assertThat(result.output)
-            .describedAs("Gradle task bake output should contains bake help description")
-            .contains(
-                """
-Detailed task information for bake
-
-Path
-     :bake
-
-Type
-     JBakeTask (org.jbake.gradle.JBakeTask)
-
-Options
-     --rerun     Causes the task to be re-run even if up-to-date.
-
-Description
-     Bake a jbake project
-
-Group
-     Documentation""".trimIndent()
-            )
-
-        "✓ Bake task executed successfully"
-            .apply(log::info)
-            .apply(::println)
-    }
 }

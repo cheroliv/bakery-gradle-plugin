@@ -7,7 +7,7 @@ import com.cheroliv.bakery.FuncTestsConstants.GRADLE_DIR
 import com.cheroliv.bakery.FuncTestsConstants.LIBS_VERSIONS_TOML_FILE
 import com.cheroliv.bakery.FuncTestsConstants.LIBS_VERSIONS_TOML_FILE_PATH
 import com.cheroliv.bakery.FuncTestsConstants.SETTINGS_FILE_PATH
-import com.cheroliv.bakery.FuncTestsConstants.deps
+import com.cheroliv.bakery.FuncTestsConstants.DEPS
 import org.assertj.core.api.Assertions.assertThat
 import org.slf4j.Logger
 import java.io.File
@@ -85,7 +85,7 @@ fun File.createDependenciesFile() {
     if (tomlFile.exists()) if (!tomlFile.delete())
         throw IOException("Could not delete existing $LIBS_VERSIONS_TOML_FILE file.")
     if (!tomlFile.exists()) tomlFile.createNewFile()
-    tomlFile.writeText(deps, UTF_8)
+    tomlFile.writeText(DEPS.trimIndent(), UTF_8)
 }
 
 fun File.createConfigFile() {
@@ -262,6 +262,7 @@ fun Logger.loadConfiguration(
         .contains(tomlListOfStringContained)
 
 }
+
 object FuncTestsConstants {
     const val BAKERY_GROUP = "bakery"
     const val BAKE_TASK = "bake"
@@ -314,7 +315,7 @@ object FuncTestsConstants {
         "public.handle_contact_form", "p_name",
         "p_email", "p_subject", "p_message",
     )
-    val deps = """
+   const val DEPS = """
             [versions]
             bakery = "0.0.6"
             ktor = "3.3.0"
@@ -388,15 +389,11 @@ object FuncTestsConstants {
             kotlinx-coroutines-reactor = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor" }
             commons-collections4 = { group = "org.apache.commons", name = "commons-collections4", version = "4.5.0-M1" }
             commons-collections-obsolete = { group = "commons-collections", name = "3.2.1" }
-            poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version = "5.2.5" }
             jaxb-impl = { group = "com.sun.xml.bind", name = "jaxb-impl", version.ref = "jaxb-impl" }
             kotlin-test-junit5 = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
             junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-platform-launcher" }
             gradle-tooling-api = { group = "org.gradle", name = "gradle-tooling-api", version.ref = "gradle" }
             junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }
-            langchain4j-core = { group = "dev.langchain4j", name = "langchain4j", version.ref = "langchain4j" }
-            langchain4j-google-ai-gemini = { group = "dev.langchain4j", name = "langchain4j-google-ai-gemini", version.ref = "langchain4j" }
-            langchain4j-pgvector = { group = "dev.langchain4j", name = "langchain4j-pgvector", version.ref = "langchain4j" }
             assertj-swing = { group = "org.assertj", name = "assertj-swing", version.ref = "assertj-swing" }
             assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
             kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test" }
@@ -463,5 +460,24 @@ object FuncTestsConstants {
 
             [bundles]
             supabase = ["supabase-postgrest", "supabase-gotrue", "supabase-storage", "supabase-realtime"]
-        """.trimIndent()
+        """
+    const val JBAKE_TASK_SEQUENCE = """
+Detailed task information for bake
+
+Path
+     :bake
+
+Type
+     JBakeTask (org.jbake.gradle.JBakeTask)
+
+Options
+     --rerun     Causes the task to be re-run even if up-to-date.
+
+Description
+     Bake a jbake project
+
+Group
+     Documentation"""
+
+
 }
