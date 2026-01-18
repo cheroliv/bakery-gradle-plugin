@@ -40,23 +40,8 @@ fun File.createSettingsFile() {
             .isTrue
         writeText(
             """
-            @file:Suppress("UnstableApiUsage")
-
             pluginManagement {
-                repositories {
-                    mavenLocal()
-                    gradlePluginPortal()
-                    mavenCentral()
-                    google()
-                }
-            }
-
-            dependencyResolutionManagement {
-                repositories {
-                    mavenLocal()
-                    mavenCentral()
-                    google()
-                }
+                repositories { gradlePluginPortal() }
             }
 
             rootProject.name = "bakery-test"
@@ -279,10 +264,8 @@ object FuncTestsConstants {
     )
     val settingsListOfStringContained = listOf(
         "pluginManagement", "repositories",
-        "mavenLocal()", "gradlePluginPortal()",
-        "mavenCentral()",
-        "dependencyResolutionManagement",
-        "rootProject.name", "bakery"
+         "gradlePluginPortal()",
+        "rootProject.name", "bakery-test"
     )
     val tomlListOfStringContained = listOf(
         "[versions]",
