@@ -9,6 +9,7 @@ import org.gradle.testkit.runner.GradleRunner.create
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.io.File
+import java.io.File.createTempFile
 
 class TestWorld {
     val log: Logger = getLogger(TestWorld::class.java)
@@ -91,22 +92,18 @@ class TestWorld {
         pluginId: String = "com.cheroliv.bakery",
         buildScriptContent: String = """bakery { configPath = file("site.yml").absolutePath }"""
     ): File {
-        val tempDir = File.createTempFile("gradle-test-", "").apply {
+        val tempDir = createTempFile("gradle-test-", "").apply {
             delete()
             mkdirs()
         }
 
-        tempDir.resolve("settings.gradle.kts").writeText(
-            """
-            rootProject.name = "${tempDir.name}"
-        """.trimIndent()
-        )
+        tempDir
+            .resolve("settings.gradle.kts")
+            .writeText("rootProject.name = \"${tempDir.name}\"")
 
-        tempDir.resolve("build.gradle.kts").writeText(
-            """
-            plugins {
-                id("$pluginId")
-            }
+        tempDir
+            .resolve("build.gradle.kts").writeText(
+            """plugins { id("$pluginId") }
             
             $buildScriptContent
         """.trimIndent()
