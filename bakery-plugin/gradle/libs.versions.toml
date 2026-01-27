@@ -14,6 +14,7 @@ mockito-kotlin = "5.3.1"
 mockito-jupiter = "5.12.0"
 gradle = "9.2.1"
 assertj = "3.27.6"
+plugin-publish = "1.3.1"
 
 [libraries]
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8" }
@@ -35,5 +36,6 @@ gradle-tooling-api = { group = "org.gradle", name = "gradle-tooling-api", versio
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 bakery = { id = "com.cheroliv.bakery", version.ref = "bakery" }
+publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 
 [bundles]

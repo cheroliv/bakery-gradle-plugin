@@ -5,8 +5,8 @@ plugins {
     signing
     `maven-publish`
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "1.3.1"
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.publish)
 }
 
 group = "com.cheroliv"
@@ -180,6 +180,11 @@ tasks.withType<Test>().configureEach {
     jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
+tasks.check {
+    dependsOn(functionalTestTask)
+    dependsOn(cucumberTest)
+}
+
 gradlePlugin {
     plugins {
         create("bakery") {
@@ -253,9 +258,4 @@ signing {
         sign(publishing.publications)
     }
     useGpgCmd()
-}
-
-tasks.check {
-    dependsOn(functionalTestTask)
-    dependsOn(cucumberTest)
 }
