@@ -6,8 +6,8 @@ import org.assertj.core.api.Assertions.assertThat
 
 class AsyncSteps(private val world: TestWorld) {
 
-    @Given("a new Gradle project")
-    fun createNewGradleProject() {
+    @Given("a new Bakery project")
+    fun createNewBakeryProject() {
         world.createGradleProject()
         assertThat(world.projectDir).exists()
     }

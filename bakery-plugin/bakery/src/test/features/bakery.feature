@@ -3,12 +3,12 @@
 Feature: Bakery plugin tests
 
   Scenario: Canary
-    Given a new Gradle project
+    Given a new Bakery project
     When I am executing the task 'tasks'
     Then the build should succeed
 
   Scenario: initSite task without site template or configuration site file
-    Given a new Gradle project
+    Given a new Bakery project
     And I add a buildScript file with 'site.yml' as the config path in the dsl
 #    And the gradle project does not have 'site.yml'
 #    And I add toml dependencies configuration file
