@@ -134,6 +134,16 @@ dependencies {
     testImplementation(functionalTest.output)
 }
 
+configurations {
+    // Exclure logback-classic du classpath de test
+    named("testRuntimeClasspath") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+    named("testImplementation") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+}
+
 // 7. Tâche dédiée aux tests Cucumber
 val cucumberTest = tasks.register<Test>("cucumberTest") {
     description = "Runs Cucumber BDD tests"
@@ -163,6 +173,11 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     // S'assurer que functionalTest et main sont compilés avant
     dependsOn(functionalTest.classesTaskName)
     dependsOn(tasks.classes)
+}
+
+tasks.withType<Test>().configureEach {
+    // Permet de masquer l'avertissement relatif au chargement dynamique d'agents
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 gradlePlugin {
@@ -243,14 +258,4 @@ signing {
 tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
-}
-
-configurations {
-    // Exclure logback-classic du classpath de test
-    named("testRuntimeClasspath") {
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
-    named("testImplementation") {
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
 }
