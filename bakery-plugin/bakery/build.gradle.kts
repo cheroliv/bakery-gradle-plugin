@@ -244,3 +244,13 @@ tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
 }
+
+configurations {
+    // Exclure logback-classic du classpath de test
+    named("testRuntimeClasspath") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+    named("testImplementation") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+}
