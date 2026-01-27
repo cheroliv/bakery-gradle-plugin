@@ -15,10 +15,20 @@ class InitSiteSteps(private val world: TestWorld) {
             .describedAs("Gradle buildScript should contains plugins block and bakery dsl.")
             .contains(
                 "plugins { id(\"com.cheroliv.bakery\") }",
-                "bakery { configPath = file(\"site.yml\").absolutePath }"
+                "bakery { configPath = file(\"$configfile\").absolutePath }"
             )
     }
-//
+
+    @And("the gradle project does not have {string} as site configuration file")
+    fun checkSiteConfigFileDoesNotExists(configFileName: String) {
+        configFileName
+            .run(world.projectDir!!::resolve)
+            .apply { if (exists()) delete() }
+            .run(::assertThat)
+            .describedAs("Project directory should not have a site configuration file.")
+            .doesNotExist()
+    }
+
 //    @When("I am executing the task {string}")
 //    fun jExecuteLaTache(taskName: String) = runBlocking {
 //        world.executeGradle(taskName)
