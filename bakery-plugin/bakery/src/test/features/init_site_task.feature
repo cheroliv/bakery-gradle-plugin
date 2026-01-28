@@ -15,7 +15,7 @@ Feature: Bakery plugin tests
     And the gradle project does not have 'jbake.properties' file for site
     And the gradle project does not have 'index.html' file for maquette
     When I am executing the task 'initSite'
-#    Then the gradle project folder should have a 'site.yml' file
+    Then the gradle project folder should have a 'site.yml' file
 #    Then the gradle project folder should have a site folder who contains jbake.properties file
 #    Then the gradle project folder should have a maquette folder who contains index.html file
 #
