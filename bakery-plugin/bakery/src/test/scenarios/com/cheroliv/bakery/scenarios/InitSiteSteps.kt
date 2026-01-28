@@ -67,7 +67,7 @@ class InitSiteSteps(private val world: TestWorld) {
 
     }
 
-    @Then("the gradle project folder should have a {string} file")
+    @Then("the gradle project folder should have a {string} file for site configuration")
     fun siteConfigurationFileShouldBeCreated(configFileName: String) {
         world.projectDir!!.resolve(configFileName).run {
 
@@ -104,14 +104,14 @@ class InitSiteSteps(private val world: TestWorld) {
             .isFile()
     }
 
-//
-//    @When("I am waiting for all asynchronous operations to complete")
-//    fun jAttendsFinOperations() = runBlocking {
-//        world.awaitAll()
-//    }
-//
-//    @Then("the build should succeed")
-//    fun leBuildDevraitReussir() {
-//        assertThat(world.buildResult).isNotNull
-//    }
+    @Then("the gradle project folder should have a directory named {string} who contains index.html file")
+    fun indexHtmlFileShouldBeCreated(siteDirName: String) {
+        world.projectDir!!
+            .resolve("maquette")
+            .resolve("index.html")
+            .run(::assertThat)
+            .describedAs("the $siteDirName directory should contains jbake.properties file")
+            .exists()
+            .isFile()
+    }
 }
