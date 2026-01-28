@@ -2,8 +2,10 @@ package com.cheroliv.bakery
 
 import com.cheroliv.bakery.ConfigPrompts.getOrPrompt
 import com.cheroliv.bakery.ConfigPrompts.saveConfiguration
+import com.cheroliv.bakery.FileSystemManager.copyResourceDirectoryFromPluginJar
 import com.cheroliv.bakery.FileSystemManager.createCnameFile
 import com.cheroliv.bakery.FileSystemManager.from
+import com.cheroliv.bakery.FileSystemManager.yamlMapper
 import com.cheroliv.bakery.GitService.pushPages
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -51,13 +53,41 @@ class BakeryPlugin : Plugin<Project> {
             // publishSite and publishMaquette not registered.
             // Only configureSite is available
             if (!project.layout.projectDirectory.asFile.resolve(bakeryExtension.configPath.get()).exists()) {
-                "config file does not exists"
+                "config file does not exists."
                     .apply(::println)
                     .let(project.logger::info)
                 project.tasks.register("initSite") { publishSiteTask ->
                     publishSiteTask.run {
                         group = BAKERY_GROUP
                         description = "Initialise site and maquette folders."
+//                        copyResourceDirectoryFromPluginJar("site", project.projectDir, this@BakeryPlugin::class.java)
+//                        copyResourceDirectoryFromPluginJar(
+//                            "maquette",
+//                            project.projectDir,
+//                            this@BakeryPlugin::class.java
+//                        )
+//                        val configFile = project
+//                            .projectDir
+//                            .resolve("site.yml")
+//                            .apply { createNewFile() }
+//                            .also {
+//                                "create config file."
+//                                    .apply(::println)
+//                                    .let(project.logger::info)
+//                            }
+//                        SiteConfiguration(
+//                            bake = BakeConfiguration(
+//                                srcPath = "site",
+//                                destDirPath = "bake",
+//                                cname = ""
+//                            )
+//                        ).run(yamlMapper::writeValueAsString)
+//                            .run(configFile::writeText)
+//                            .also {
+//                                "write config file."
+//                                    .apply(::println)
+//                                    .let(project.logger::info)
+//                            }
                     }
                 }
             } else {
@@ -173,57 +203,57 @@ class BakeryPlugin : Plugin<Project> {
 
 
 
-        project.tasks.register("configureSite") { task ->
-            task.run {
-                group = BAKERY_GROUP
-                description = "Initialize Bakery configuration."
-
-                doLast {
-                    val token = getOrPrompt(
-                        project = project,
-                        propertyName = "GitHub Token",
-                        cliProperty = "githubToken",
-                        sensitive = true
-                    )
-
-                    val username = getOrPrompt(
-                        project = project,
-                        propertyName = "GitHub Username",
-                        cliProperty = "githubUsername",
-                        sensitive = false
-                    )
-
-                    val repo = getOrPrompt(
-                        project = project,
-                        propertyName = "GitHub Repository URL",
-                        cliProperty = "githubRepo",
-                        sensitive = false,
-                        example = "https://github.com/username/repo.git"
-                    )
-
-                    val configPath = getOrPrompt(
-                        project = project,
-                        propertyName = "Config Path",
-                        cliProperty = "configPath",
-                        sensitive = false,
-                        example = "config/bakery.yml",
-                        default = "config/bakery.yml"
-                    )
-
-                    project.logger.lifecycle("✓ Bakery configuration completed:")
-                    project.logger.lifecycle("  Username: $username")
-                    project.logger.lifecycle("  Repository: $repo")
-                    project.logger.lifecycle("  Config Path: $configPath")
-                    project.logger.lifecycle("  Token: ${if (token.isNotEmpty()) "***configured***" else "not set"}")
-
-                    saveConfiguration(project, token, username, repo, configPath)
-
-                    project.logger.lifecycle("")
-                    project.logger.lifecycle("✓ Configuration saved successfully!")
-                    project.logger.lifecycle("  You can now run: ./gradlew bake")
-                }
-            }
-        }
+//        project.tasks.register("configureSite") { task ->
+//            task.run {
+//                group = BAKERY_GROUP
+//                description = "Initialize Bakery configuration."
+//
+//                doLast {
+//                    val token = getOrPrompt(
+//                        project = project,
+//                        propertyName = "GitHub Token",
+//                        cliProperty = "githubToken",
+//                        sensitive = true
+//                    )
+//
+//                    val username = getOrPrompt(
+//                        project = project,
+//                        propertyName = "GitHub Username",
+//                        cliProperty = "githubUsername",
+//                        sensitive = false
+//                    )
+//
+//                    val repo = getOrPrompt(
+//                        project = project,
+//                        propertyName = "GitHub Repository URL",
+//                        cliProperty = "githubRepo",
+//                        sensitive = false,
+//                        example = "https://github.com/username/repo.git"
+//                    )
+//
+//                    val configPath = getOrPrompt(
+//                        project = project,
+//                        propertyName = "Config Path",
+//                        cliProperty = "configPath",
+//                        sensitive = false,
+//                        example = "config/bakery.yml",
+//                        default = "config/bakery.yml"
+//                    )
+//
+//                    project.logger.lifecycle("✓ Bakery configuration completed:")
+//                    project.logger.lifecycle("  Username: $username")
+//                    project.logger.lifecycle("  Repository: $repo")
+//                    project.logger.lifecycle("  Config Path: $configPath")
+//                    project.logger.lifecycle("  Token: ${if (token.isNotEmpty()) "***configured***" else "not set"}")
+//
+//                    saveConfiguration(project, token, username, repo, configPath)
+//
+//                    project.logger.lifecycle("")
+//                    project.logger.lifecycle("✓ Configuration saved successfully!")
+//                    project.logger.lifecycle("  You can now run: ./gradlew bake")
+//                }
+//            }
+//        }
 
     }
 
