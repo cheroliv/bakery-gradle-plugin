@@ -145,9 +145,14 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     group = "verification"
 
     testClassesDirs = sourceSets.test.get().output.classesDirs
+//    classpath = configurations.testRuntimeClasspath.get() +
+//            sourceSets.test.get().output +
+//            functionalTest.output
+
     classpath = configurations.testRuntimeClasspath.get() +
             sourceSets.test.get().output +
-            functionalTest.output
+            functionalTest.output +
+            sourceSets.main.get().output
 
     useJUnitPlatform {
         // CORRECTION: Ne pas filtrer par tag ici, ça filtre les engines JUnit
