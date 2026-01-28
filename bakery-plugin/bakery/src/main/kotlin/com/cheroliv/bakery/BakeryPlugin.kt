@@ -1,8 +1,5 @@
 package com.cheroliv.bakery
 
-import com.cheroliv.bakery.ConfigPrompts.getOrPrompt
-import com.cheroliv.bakery.ConfigPrompts.saveConfiguration
-import com.cheroliv.bakery.FileSystemManager.copyResourceDirectoryFromPluginJar
 import com.cheroliv.bakery.FileSystemManager.createCnameFile
 import com.cheroliv.bakery.FileSystemManager.from
 import com.cheroliv.bakery.FileSystemManager.yamlMapper
@@ -16,6 +13,7 @@ import org.jbake.gradle.JBakePlugin
 import org.jbake.gradle.JBakeTask
 import java.io.File
 import java.io.File.separator
+import java.util.jar.JarFile
 
 
 class BakeryPlugin : Plugin<Project> {
@@ -69,27 +67,16 @@ class BakeryPlugin : Plugin<Project> {
                                     .apply(::println)
                                     .let(project.logger::info)
                             }
-                        SiteConfiguration(
-                            bake = BakeConfiguration(
-                                srcPath = "site",
-                                destDirPath = "bake",
-                                cname = ""
-                            )
-                        ).run(yamlMapper::writeValueAsString)
+                        val site = SiteConfiguration(BakeConfiguration("site", "bake", ""))
+                        site.run(yamlMapper::writeValueAsString)
                             .run(configFile::writeText)
                             .also {
                                 "write config file."
                                     .apply(::println)
                                     .let(project.logger::info)
                             }
-
-
-//                        copyResourceDirectoryFromPluginJar("site", project.projectDir, this@BakeryPlugin::class.java)
-//                        copyResourceDirectoryFromPluginJar(
-//                            "maquette",
-//                            project.projectDir,
-//                            this@BakeryPlugin::class.java
-//                        )
+                        copyResourceDirectory(site.bake.srcPath, project.projectDir, project)
+                        copyResourceDirectory("maquette", project.projectDir, project)
                     }
                 }
             } else {
@@ -204,7 +191,6 @@ class BakeryPlugin : Plugin<Project> {
         }
 
 
-
 //        project.tasks.register("configureSite") { task ->
 //            task.run {
 //                group = BAKERY_GROUP
@@ -259,4 +245,130 @@ class BakeryPlugin : Plugin<Project> {
 
     }
 
+    /**
+     * Copie un répertoire de ressources depuis le plugin (JAR ou filesystem) vers un dossier cible
+     *
+     * @param resourcePath Le chemin de la ressource dans le plugin (ex: "site")
+     * @param targetDir Le dossier de destination
+     * @param project Le projet Gradle (pour le logging)
+     */
+    private fun copyResourceDirectory(resourcePath: String, targetDir: File, project: Project) {
+        val classLoader = this::class.java.classLoader
+        val resource = classLoader.getResource(resourcePath)
+
+        project.logger.info("Attempting to copy resource: $resourcePath")
+        project.logger.info("Resource URL: $resource")
+
+        when {
+            resource == null -> {
+                val errorMsg = "Resource directory not found: $resourcePath"
+                project.logger.error(errorMsg)
+                throw IllegalArgumentException(errorMsg)
+            }
+
+            resource.protocol == "jar" -> {
+                project.logger.info("Copying from JAR...")
+                copyFromJar(resourcePath, targetDir, project)
+            }
+
+            resource.protocol == "file" -> {
+                project.logger.info("Copying from file system...")
+                copyFromFileSystem(resourcePath, targetDir, project)
+            }
+
+            else -> {
+                val errorMsg = "Unsupported resource protocol: ${resource.protocol}"
+                project.logger.error(errorMsg)
+                throw IllegalArgumentException(errorMsg)
+            }
+        }
+    }
+
+    /**
+     * Copie depuis un JAR
+     */
+    private fun copyFromJar(resourcePath: String, targetDir: File, project: Project) {
+        try {
+            // Obtenir le chemin du JAR du plugin
+            val jarUrl = this::class.java.protectionDomain.codeSource.location
+            project.logger.info("JAR URL: $jarUrl")
+
+            JarFile(File(jarUrl.toURI())).use { jar ->
+                val normalizedPath = resourcePath.removeSuffix("/") + "/"
+                var copiedCount = 0
+
+                jar.entries().asSequence()
+                    .filter { entry ->
+                        entry.name.startsWith(normalizedPath) &&
+                                !entry.isDirectory &&
+                                entry.name != normalizedPath
+                    }
+                    .forEach { entry ->
+                        val relativePath = entry.name.removePrefix(normalizedPath)
+                        val targetFile = targetDir.resolve(relativePath)
+
+                        project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
+
+                        targetFile.parentFile.mkdirs()
+
+                        jar.getInputStream(entry).use { input ->
+                            targetFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        copiedCount++
+                    }
+
+                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
+            }
+        } catch (e: Exception) {
+            project.logger.error("Error copying from JAR: ${e.message}", e)
+            throw e
+        }
+    }
+
+    /**
+     * Copie depuis le système de fichiers (mode développement)
+     */
+    private fun copyFromFileSystem(resourcePath: String, targetDir: File, project: Project) {
+        try {
+            val classLoader = this::class.java.classLoader
+            val resource = classLoader.getResource(resourcePath)
+                ?: throw IllegalArgumentException("Resource not found: $resourcePath")
+
+            val sourceDir = File(resource.toURI())
+            val destDir = targetDir.resolve(resourcePath)
+
+            project.logger.info("Source: ${sourceDir.absolutePath}")
+            project.logger.info("Destination: ${destDir.absolutePath}")
+
+            if (!sourceDir.exists()) {
+                throw IllegalArgumentException("Source directory does not exist: ${sourceDir.absolutePath}")
+            }
+
+            if (!sourceDir.isDirectory) {
+                throw IllegalArgumentException("Source is not a directory: ${sourceDir.absolutePath}")
+            }
+
+            destDir.parentFile.mkdirs()
+
+            val copiedCount = sourceDir.walkTopDown()
+                .filter { it.isFile }
+                .count { sourceFile ->
+                    val relativePath = sourceFile.relativeTo(sourceDir).path
+                    val targetFile = destDir.resolve(relativePath)
+
+                    project.logger.info("Copying: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
+
+                    targetFile.parentFile.mkdirs()
+                    sourceFile.copyTo(targetFile, overwrite = true)
+                    true
+                }
+
+            project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
+        } catch (e: Exception) {
+            project.logger.error("Error copying from file system: ${e.message}", e)
+            throw e
+        }
+    }
 }
