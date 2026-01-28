@@ -20,23 +20,12 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
-    api(libs.asciidoctorj.diagram)
-    api(libs.asciidoctorj.diagram.plantuml)
-    api(libs.jbake.gradle.plugin)
+    api(libs.bundles.jbake)
+    api(libs.bundles.jgit)
     api(libs.commons.io)
-    api(libs.jgit.core)
-    api(libs.jgit.ssh)
-    api(libs.jgit.archive)
-    api(libs.xz)
-
-    //    implementation("tools.jackson.module:jackson-module-kotlin:3.0.4")
-//    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.4")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.0")
 
     // Coroutines - IMPORTANT pour les tests asynchrones
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.10.2")
+    testImplementation(libs.bundles.coroutines)
 
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -48,10 +37,7 @@ dependencies {
     testImplementation(libs.mockito.junit.jupiter)
 
     // Cucumber dependencies
-    testImplementation("io.cucumber:cucumber-java:7.33.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
-    testImplementation("io.cucumber:cucumber-picocontainer:7.33.0")
-    testImplementation("org.junit.platform:junit-platform-suite:1.14.2")
+    testImplementation(libs.bundles.cucumber)
 }
 
 kotlin.jvmToolchain(21)
@@ -82,7 +68,7 @@ dependencies {
 
     // Ajouter les dépendances nécessaires explicitement
     add(functionalTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
-    add(functionalTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.20")
+    add(functionalTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.26")
     add(functionalTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
 
     // CORRECTION: Ajouter AssertJ pour les assertions
@@ -91,6 +77,10 @@ dependencies {
     // Ajouter Mockito si nécessaire
     add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
     add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
+
+    libs.bundles.coroutines.get().forEach { dep ->
+        add(functionalTest.implementationConfigurationName, dep)
+    }
 }
 
 // 3. Tâche pour les tests fonctionnels
