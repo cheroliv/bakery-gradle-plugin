@@ -23,6 +23,7 @@ class BakeryPlugin : Plugin<Project> {
         const val BAKE_TASK = "bake"
         const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
         const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
+        const val version = "0.0.9"
 
         @Suppress("unused")
         const val CNAME = "CNAME"
@@ -86,9 +87,10 @@ class BakeryPlugin : Plugin<Project> {
                                 appendText("\nsite.yml\n", UTF_8)
                         }
                         project.projectDir.resolve(".gitattributes").run {
-                            if (!exists()){
+                            if (!exists()) {
                                 createNewFile()
-                                writeText("""
+                                writeText(
+                                    """
                                     #
                                     # https://help.github.com/articles/dealing-with-line-endings/
                                     #
@@ -100,7 +102,8 @@ class BakeryPlugin : Plugin<Project> {
 
                                     # Binary files should be left untouched
                                     *.jar           binary
-                                """.trimIndent(), UTF_8)
+                                """.trimIndent(), UTF_8
+                                )
                             }
 
                         }
