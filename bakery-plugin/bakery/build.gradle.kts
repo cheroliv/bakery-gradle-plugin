@@ -148,6 +148,10 @@ configurations {
     named("testImplementation") {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
+    // Exclure logback-classic du classpath de functionalTest
+    named(functionalTest.runtimeClasspathConfigurationName) {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
 }
 
 // 7. Tâche dédiée aux tests Cucumber
