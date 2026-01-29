@@ -17,15 +17,29 @@ import java.io.File.separator
 import kotlin.text.Charsets.UTF_8
 
 
+
+
 class BakeryPlugin : Plugin<Project> {
     companion object {
         const val BAKERY_GROUP = "bakery"
         const val BAKE_TASK = "bake"
         const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
         const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
-
         @Suppress("unused")
         const val CNAME = "CNAME"
+        const val GIT_ATTRIBUTES_CONTENT = """
+                                    #
+                                    # https://help.github.com/articles/dealing-with-line-endings/
+                                    #
+                                    # Linux start script should use lf
+                                    /gradlew        text eol=lf
+
+                                    # These are Windows script files and should use crlf
+                                    *.bat           text eol=crlf
+
+                                    # Binary files should be left untouched
+                                    *.jar           binary
+                                """
     }
 
     override fun apply(project: Project) {
@@ -88,21 +102,7 @@ class BakeryPlugin : Plugin<Project> {
                         project.projectDir.resolve(".gitattributes").run {
                             if (!exists()) {
                                 createNewFile()
-                                writeText(
-                                    """
-                                    #
-                                    # https://help.github.com/articles/dealing-with-line-endings/
-                                    #
-                                    # Linux start script should use lf
-                                    /gradlew        text eol=lf
-
-                                    # These are Windows script files and should use crlf
-                                    *.bat           text eol=crlf
-
-                                    # Binary files should be left untouched
-                                    *.jar           binary
-                                """.trimIndent(), UTF_8
-                                )
+                                writeText(GIT_ATTRIBUTES_CONTENT.trimIndent(), UTF_8)
                             }
 
                         }

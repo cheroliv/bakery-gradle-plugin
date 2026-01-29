@@ -127,7 +127,7 @@ bake:
   # Répertoire de destination pour le site généré
   destDirPath: "bake"
   # (Optionnel) Le domaine pour le fichier CNAME. Si fourni, un fichier CNAME sera créé.
-  cname: "www.votre-domaine.com"
+  cname: ""
 
 # Paramètres de déploiement pour le site statique principal
 pushPage:
@@ -145,9 +145,9 @@ pushPage:
     credentials:
       username: "VotreNomUtilisateur"
       # IMPORTANT : Utilisez une variable d'environnement ou un secret pour le token
-      password: "${GITHUB_TOKEN:-votre_github_pat}"
+      password: "GITHUB_TOKEN"
   # La branche sur laquelle déployer le site
-  branch: "gh-pages"
+  branch: "main"
   # Le message de commit pour le déploiement
   message: "Déploiement du site statique"
 
