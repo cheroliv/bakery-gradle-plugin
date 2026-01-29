@@ -14,7 +14,6 @@ import org.jbake.gradle.JBakePlugin
 import org.jbake.gradle.JBakeTask
 import java.io.File
 import java.io.File.separator
-import java.util.jar.JarFile
 
 
 class BakeryPlugin : Plugin<Project> {
@@ -70,7 +69,7 @@ class BakeryPlugin : Plugin<Project> {
                                     .apply(::println)
                                     .let(project.logger::info)
                             }
-                        val site = SiteConfiguration(BakeConfiguration("site", "bake", ""))
+                        val site = SiteConfiguration(BakeConfiguration("site", "bake"))
                         site.run(yamlMapper::writeValueAsString)
                             .run(configFile::writeText)
                             .also {
