@@ -23,7 +23,6 @@ class BakeryPlugin : Plugin<Project> {
         const val BAKE_TASK = "bake"
         const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
         const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
-        const val version = "0.0.9"
 
         @Suppress("unused")
         const val CNAME = "CNAME"
