@@ -4,6 +4,7 @@ import com.cheroliv.bakery.FileSystemManager.copyResourceDirectory
 import com.cheroliv.bakery.FileSystemManager.createCnameFile
 import com.cheroliv.bakery.FileSystemManager.from
 import com.cheroliv.bakery.FileSystemManager.yamlMapper
+import com.cheroliv.bakery.GitService.GIT_ATTRIBUTES_CONTENT
 import com.cheroliv.bakery.GitService.pushPages
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -27,19 +28,6 @@ class BakeryPlugin : Plugin<Project> {
         const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
         @Suppress("unused")
         const val CNAME = "CNAME"
-        const val GIT_ATTRIBUTES_CONTENT = """
-                                    #
-                                    # https://help.github.com/articles/dealing-with-line-endings/
-                                    #
-                                    # Linux start script should use lf
-                                    /gradlew        text eol=lf
-
-                                    # These are Windows script files and should use crlf
-                                    *.bat           text eol=crlf
-
-                                    # Binary files should be left untouched
-                                    *.jar           binary
-                                """
     }
 
     override fun apply(project: Project) {
