@@ -13,89 +13,139 @@ import org.gradle.api.Project
 import org.slf4j.Logger
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.util.jar.JarFile
 import kotlin.text.Charsets.UTF_8
 
 
 object FileSystemManager {
+
     /**
-     * Copie le répertoire [resourcePath] trouvé dans le JAR (ou répertoire) contenant [pluginClass]
-     * vers [targetDir]. Retourne la liste des fichiers copiés.
+     * Copie un répertoire de ressources depuis le plugin (JAR ou filesystem) vers un dossier cible
      *
-     * @param resourcePath ex: "site" (sans slash initial)
-     * @param targetDir dossier cible (il sera créé si nécessaire)
-     * @param pluginClass une classe qui se trouve dans le JAR du plugin (ex: com.cheroliv.bakery.BakeryPlugin::class.java)
+     * @param resourcePath Le chemin de la ressource dans le plugin (ex: "site")
+     * @param targetDir Le dossier de destination
+     * @param project Le projet Gradle (pour le logging)
      */
-    fun copyResourceDirectoryFromPluginJar(
-        resourcePath: String,
-        targetDir: File,
-        pluginClass: Class<*>
-    ): List<Path> {
-        require(resourcePath.isNotBlank()) { "resourcePath ne peut pas être vide" }
-        val normalized = resourcePath.removePrefix("/").trimEnd('/')
-        val prefix = "$normalized/"
+    fun copyResourceDirectory(resourcePath: String, targetDir: File, project: Project) {
+        val classLoader = BakeryPlugin::class.java.classLoader
+        val resource = classLoader.getResource(resourcePath)
 
-        val codeSourceUrl = pluginClass.protectionDomain.codeSource?.location
-            ?: throw IllegalStateException("Impossible de déterminer le codeSource pour ${pluginClass.name}")
+        project.logger.info("Attempting to copy resource: $resourcePath")
+        project.logger.info("Resource URL: $resource")
 
-        val uri = codeSourceUrl.toURI()
-
-        // Si le plugin est en mode développement (répertoire), on copie depuis le FS
-        if (Files.isDirectory(Paths.get(uri))) {
-            val sourceDir = Paths.get(uri).resolve(normalized)
-            if (!Files.exists(sourceDir) || !Files.isDirectory(sourceDir)) {
-                throw IllegalArgumentException("Ressource '$normalized' introuvable sous $sourceDir")
+        when {
+            resource == null -> {
+                val errorMsg = "Resource directory not found: $resourcePath"
+                project.logger.error(errorMsg)
+                throw IllegalArgumentException(errorMsg)
             }
-            return copyDirectoryOnFs(sourceDir, targetDir.toPath())
-        }
 
-        // Sinon on suppose que codeSource pointe vers un JAR
-        val jarPath = Paths.get(uri).toFile()
-        JarFile(jarPath).use { jf ->
-            val copied = mutableListOf<Path>()
-            val entries = jf.entries()
-            while (entries.hasMoreElements()) {
-                val entry = entries.nextElement()
-                val name = entry.name
-                if (!name.startsWith(prefix)) continue
-                val rel = name.removePrefix(prefix)
-                if (rel.isEmpty()) continue
-                val dest = targetDir.toPath().resolve(rel)
-                if (entry.isDirectory) {
-                    Files.createDirectories(dest)
-                } else {
-                    Files.createDirectories(dest.parent)
-                    jf.getInputStream(entry).use { input ->
-                        Files.copy(input, dest, StandardCopyOption.REPLACE_EXISTING)
+            resource.protocol == "jar" -> {
+                project.logger.info("Copying from JAR...")
+                copyFromJar(resourcePath, targetDir, project)
+            }
+
+            resource.protocol == "file" -> {
+                project.logger.info("Copying from file system...")
+                copyFromFileSystem(resourcePath, targetDir, project)
+            }
+
+            else -> {
+                val errorMsg = "Unsupported resource protocol: ${resource.protocol}"
+                project.logger.error(errorMsg)
+                throw IllegalArgumentException(errorMsg)
+            }
+        }
+    }
+
+    /**
+     * Copie depuis un JAR
+     */
+    private fun copyFromJar(resourcePath: String, targetDir: File, project: Project) {
+        try {
+            // Obtenir le chemin du JAR du plugin
+            val jarUrl = BakeryPlugin::class.java.protectionDomain.codeSource.location
+            project.logger.info("JAR URL: $jarUrl")
+
+            JarFile(File(jarUrl.toURI())).use { jar ->
+                val normalizedPath = resourcePath.removeSuffix("/") + "/"
+                var copiedCount = 0
+
+                jar.entries().asSequence()
+                    .filter { entry ->
+                        entry.name.startsWith(normalizedPath) &&
+                                !entry.isDirectory &&
+                                entry.name != normalizedPath
                     }
-                    copied.add(dest)
-                }
+                    .forEach { entry ->
+                        val relativePath = entry.name.removePrefix(normalizedPath)
+                        val targetFile = targetDir.resolve(relativePath)
+
+                        project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
+
+                        targetFile.parentFile.mkdirs()
+
+                        jar.getInputStream(entry).use { input ->
+                            targetFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        copiedCount++
+                    }
+
+                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
             }
-            return copied
+        } catch (e: Exception) {
+            project.logger.error("Error copying from JAR: ${e.message}", e)
+            throw e
         }
     }
 
-    private fun copyDirectoryOnFs(source: Path, target: Path): List<Path> {
-        val copied = mutableListOf<Path>()
-        Files.walk(source).use { stream ->
-            stream.forEach { p ->
-                val rel = source.relativize(p)
-                val dest = target.resolve(rel.toString())
-                if (Files.isDirectory(p)) {
-                    Files.createDirectories(dest)
-                } else {
-                    Files.createDirectories(dest.parent)
-                    Files.copy(p, dest, StandardCopyOption.REPLACE_EXISTING)
-                    copied.add(dest)
-                }
+    /**
+     * Copie depuis le système de fichiers (mode développement)
+     */
+    private fun copyFromFileSystem(resourcePath: String, targetDir: File, project: Project) {
+        try {
+            val classLoader = BakeryPlugin::class.java.classLoader
+            val resource = classLoader.getResource(resourcePath)
+                ?: throw IllegalArgumentException("Resource not found: $resourcePath")
+
+            val sourceDir = File(resource.toURI())
+            val destDir = targetDir.resolve(resourcePath)
+
+            project.logger.info("Source: ${sourceDir.absolutePath}")
+            project.logger.info("Destination: ${destDir.absolutePath}")
+
+            if (!sourceDir.exists()) {
+                throw IllegalArgumentException("Source directory does not exist: ${sourceDir.absolutePath}")
             }
+
+            if (!sourceDir.isDirectory) {
+                throw IllegalArgumentException("Source is not a directory: ${sourceDir.absolutePath}")
+            }
+
+            destDir.parentFile.mkdirs()
+
+            val copiedCount = sourceDir.walkTopDown()
+                .filter { it.isFile }
+                .count { sourceFile ->
+                    val relativePath = sourceFile.relativeTo(sourceDir).path
+                    val targetFile = destDir.resolve(relativePath)
+
+                    project.logger.info("Copying: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
+
+                    targetFile.parentFile.mkdirs()
+                    sourceFile.copyTo(targetFile, overwrite = true)
+                    true
+                }
+
+            project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
+        } catch (e: Exception) {
+            project.logger.error("Error copying from file system: ${e.message}", e)
+            throw e
         }
-        return copied
     }
+
     // Publishing logic
     fun createRepoDir(path: String, logger: Logger): File = path.let(::File).apply {
         if (exists() && !isDirectory) if (delete()) logger.info("$name exists as file and successfully deleted.")
