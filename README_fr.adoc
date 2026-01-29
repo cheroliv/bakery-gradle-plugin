@@ -127,7 +127,7 @@ bake:
   # Répertoire de destination pour le site généré
   destDirPath: "bake"
   # (Optionnel) Le domaine pour le fichier CNAME. Si fourni, un fichier CNAME sera créé.
-  cname: ""
+  cname: "www.your-domain.com"
 
 # Paramètres de déploiement pour le site statique principal
 pushPage:
