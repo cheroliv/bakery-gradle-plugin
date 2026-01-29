@@ -27,7 +27,7 @@ class InitSiteSteps(private val world: TestWorld) {
             )
     }
 
-    @And("the gradle project does not have {string} as site configuration file")
+    @And("the gradle project does not have {string} file for site configuration")
     fun checkSiteConfigFileDoesNotExists(configFileName: String) {
         configFileName
             .run(world.projectDir!!::resolve)
