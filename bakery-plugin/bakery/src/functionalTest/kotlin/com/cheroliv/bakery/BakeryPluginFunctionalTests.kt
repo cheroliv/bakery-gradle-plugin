@@ -171,8 +171,8 @@ class BakeryPluginFunctionalTests {
             .withProjectDir(projectDir)
             .build()
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should not contain 'configureSite' and 'Initialize configuration.'""")
-            .doesNotContain("Initialize Bakery configuration.", "configureSite")
+            .describedAs("""Gradle task tasks output should contain 'configureSite' and 'Initialize configuration.'""")
+        .contains("Initialize Bakery configuration.", "configureSite")
         info("✓ tasks displays the configureSite task's description correctly.")
     }
 
