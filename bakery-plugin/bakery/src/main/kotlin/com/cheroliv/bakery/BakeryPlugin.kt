@@ -18,7 +18,6 @@ import java.io.File.separator
 import kotlin.text.Charsets.UTF_8
 
 
-
 class BakeryPlugin : Plugin<Project> {
     companion object {
         const val BAKERY_GROUP = "bakery"
@@ -28,6 +27,7 @@ class BakeryPlugin : Plugin<Project> {
         const val ASCIIDOC_ATTRIBUTES_PROP = "asciidoctor.attributes"
         const val ASCIIDOC_DIAGRAMS_DIRECTORY = "imagesDir=diagrams"
         const val ASCIIDOC_SOURCE_DIR = "sourceDir"
+
         @Suppress("unused")
         const val CNAME = "CNAME"
     }
@@ -85,7 +85,7 @@ class BakeryPlugin : Plugin<Project> {
                         project.projectDir.resolve(".gitignore").run {
                             if (!exists()) {
                                 createNewFile()
-                                writeText(".gradle\nbuild\n.kotlin\nsite.yml\n")
+                                writeText(".gradle\nbuild\n.kotlin\nsite.yml\n.idea\n*.iml\n*.ipr\n*.iws\nlocal.properties\n")
                             } else if (!readText(UTF_8).contains("site.yml"))
                                 appendText("\nsite.yml\n", UTF_8)
                         }
