@@ -3,6 +3,8 @@ package com.cheroliv.bakery
 import com.cheroliv.bakery.FileSystemManager.copyResourceDirectory
 import com.cheroliv.bakery.FileSystemManager.createCnameFile
 import com.cheroliv.bakery.FileSystemManager.from
+import com.cheroliv.bakery.FileSystemManager.isYmlUri
+import com.cheroliv.bakery.FileSystemManager.loadProperties
 import com.cheroliv.bakery.FileSystemManager.yamlMapper
 import com.cheroliv.bakery.GitService.GIT_ATTRIBUTES_CONTENT
 import com.cheroliv.bakery.GitService.pushPages
@@ -54,7 +56,18 @@ class BakeryPlugin : Plugin<Project> {
         project.afterEvaluate {
             // If site.yml does not exist then jbakeExtension is not configured,
             // publishSite and publishMaquette not registered.
-            // Only configureSite is available
+            // Only initSite is available
+            if (!bakeryExtension.configPath.isPresent) {
+                val gradlePropertiesFile = project.layout.projectDirectory.asFile.resolve("gradle.properties")
+                if (gradlePropertiesFile.exists()) {
+                    gradlePropertiesFile.loadProperties().run {
+                        if (keys.contains("bakery.configPath") &&
+                            this["bakery.configPath"].toString().isNotBlank() &&
+                            isYmlUri(this["bakery.configPath"].toString())
+                        ) bakeryExtension.configPath.set(this["bakery.configPath"].toString())
+                    }
+                } else project.logger.info("Nor dsl configuration like 'bakery { configPath = file(\"site.yml\").absolutePath }\n' or gradle properties file found")
+            }
             if (!project.layout.projectDirectory.asFile.resolve(bakeryExtension.configPath.get()).exists()) {
 
                 "config file does not exists."
