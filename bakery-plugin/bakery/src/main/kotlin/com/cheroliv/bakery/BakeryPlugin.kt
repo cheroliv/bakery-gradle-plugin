@@ -19,13 +19,15 @@ import kotlin.text.Charsets.UTF_8
 
 
 
-
 class BakeryPlugin : Plugin<Project> {
     companion object {
         const val BAKERY_GROUP = "bakery"
         const val BAKE_TASK = "bake"
         const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
         const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
+        const val ASCIIDOC_ATTRIBUTES_PROP = "asciidoctor.attributes"
+        const val ASCIIDOC_DIAGRAMS_DIRECTORY = "imagesDir=diagrams"
+        const val ASCIIDOC_SOURCE_DIR = "sourceDir"
         @Suppress("unused")
         const val CNAME = "CNAME"
     }
@@ -107,9 +109,9 @@ class BakeryPlugin : Plugin<Project> {
                     it.srcDirName = site.bake.srcPath
                     it.destDirName = site.bake.destDirPath
                     it.configuration[ASCIIDOCTOR_OPTION_REQUIRES] = ASCIIDOCTOR_DIAGRAM
-                    it.configuration["asciidoctor.attributes"] = arrayOf(
-                        "sourceDir=${project.projectDir.resolve(site.bake.srcPath)}",
-                        "imagesDir=diagrams",
+                    it.configuration[ASCIIDOC_ATTRIBUTES_PROP] = arrayOf(
+                        "$ASCIIDOC_SOURCE_DIR=${project.projectDir.resolve(site.bake.srcPath)}",
+                        ASCIIDOC_DIAGRAMS_DIRECTORY,
                     )
                 }
 
