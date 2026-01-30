@@ -67,7 +67,7 @@ class InitSiteSteps(private val world: TestWorld) {
 
     }
 
-    @Then("the gradle project folder should have a {string} file for site configuration")
+    @Then("the project should have a {string} file for site configuration")
     fun siteConfigurationFileShouldBeCreated(configFileName: String) {
         world.projectDir!!.resolve(configFileName).run {
 
@@ -92,18 +92,21 @@ class InitSiteSteps(private val world: TestWorld) {
         }
     }
 
-    @Then("the gradle project folder should have a directory named {string} who contains jbake.properties file")
-    fun jbakePropertiesFileShouldBeCreated(siteDirName: String) {
+    @Then("the project should have a directory named {string} who contains {string} file")
+    fun jbakePropertiesFileShouldBeCreated(
+        siteDirName: String,
+        jbakePropertiesFileName: String
+    ) {
         world.projectDir!!
-            .resolve("site")
-            .resolve("jbake.properties")
+            .resolve(siteDirName)
+            .resolve(jbakePropertiesFileName)
             .run(::assertThat)
-            .describedAs("the $siteDirName directory should contains jbake.properties file")
+            .describedAs("the $siteDirName directory should contains $jbakePropertiesFileName file")
             .exists()
             .isFile()
     }
 
-    @Then("the gradle project folder should have a directory named {string} who contains index.html file")
+    @Then("the project should have a directory named {string} who contains index.html file")
     fun indexHtmlFileShouldBeCreated(siteDirName: String) {
         world.projectDir!!
             .resolve("maquette")
@@ -114,5 +117,41 @@ class InitSiteSteps(private val world: TestWorld) {
             .isFile()
     }
 
-    val foo = listOf(".gradle", "build", ".kotlin")
+    @Then("the project should have a file named {string} who contains {string}, {string}, {string} and {string}")
+    fun checkGitIgnoreFileExistsWithIgnoredFiles(
+        gitIgnoreFileName: String,
+        configFileName: String,
+        dotGradleDirName: String,
+        buildDirName: String,
+        dotKotlinDirName: String
+    ) {
+        world.projectDir!!
+            .resolve(gitIgnoreFileName)
+            .apply {
+                run(::assertThat)
+                    .describedAs("project directory should contains file named '$gitIgnoreFileName")
+                    .exists()
+                    .isFile
+            }.readText(UTF_8)
+            .run(::assertThat)
+            .contains(configFileName, dotGradleDirName, buildDirName, dotKotlinDirName)
+    }
+
+    @Then("the project should have a file named {string} who contains {string} and {string}")
+    fun checkGitAttributesFileExistsWithEolConfig(
+        gitAttributesFileName: String,
+        gitAttributesFileContentEOL: String,
+        gitAttributesFileContentCRLF: String,
+    ) {
+        world.projectDir!!
+            .resolve(gitAttributesFileName)
+            .apply {
+                run(::assertThat)
+                    .describedAs("project directory should contains file named '$gitAttributesFileName")
+                    .exists()
+                    .isFile
+            }.readText(UTF_8)
+            .run(::assertThat)
+            .contains(gitAttributesFileContentEOL, gitAttributesFileContentCRLF)
+    }
 }
