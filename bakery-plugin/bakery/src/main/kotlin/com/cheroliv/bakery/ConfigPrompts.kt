@@ -4,7 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.Console
 
-object ConfigPrompts{
+object ConfigPrompts {
 
     fun getOrPrompt(
         project: Project,
@@ -40,14 +40,9 @@ object ConfigPrompts{
         val console: Console? = System.console()
 
         return if (console != null) {
-            if (sensitive) {
-                promptSensitive(console, propertyName, logger)
-            } else {
-                promptNormal(console, propertyName, example, logger)
-            }
-        } else {
-            promptFallback(propertyName, sensitive, example, logger)
-        }
+            if (sensitive) promptSensitive(console, propertyName, logger)
+            else promptNormal(console, propertyName, example, logger)
+        } else promptFallback(propertyName, sensitive, example, logger)
     }
 
     private fun promptSensitive(
