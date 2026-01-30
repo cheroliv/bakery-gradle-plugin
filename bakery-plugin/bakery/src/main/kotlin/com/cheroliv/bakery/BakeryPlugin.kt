@@ -232,57 +232,57 @@ class BakeryPlugin : Plugin<Project> {
 
                 project.tasks.register("createPagesRepository") { task -> }
 
-        project.tasks.register("configureSite") { task ->
-            task.run {
-                group = BAKERY_GROUP
-                description = "Initialize Bakery configuration."
+                project.tasks.register("configureSite") { task ->
+                    task.run {
+                        group = BAKERY_GROUP
+                        description = "Initialize Bakery configuration."
 
-                doLast {
-                    val token = getOrPrompt(
-                        project = project,
-                        propertyName = "GitHub Token",
-                        cliProperty = "githubToken",
-                        sensitive = true
-                    )
+                        doLast {
+                            val token = getOrPrompt(
+                                project = project,
+                                propertyName = "GitHub Token",
+                                cliProperty = "githubToken",
+                                sensitive = true
+                            )
 
-                    val username = getOrPrompt(
-                        project = project,
-                        propertyName = "GitHub Username",
-                        cliProperty = "githubUsername",
-                        sensitive = false
-                    )
+                            val username = getOrPrompt(
+                                project = project,
+                                propertyName = "GitHub Username",
+                                cliProperty = "githubUsername",
+                                sensitive = false
+                            )
 
-                    val repo = getOrPrompt(
-                        project = project,
-                        propertyName = "GitHub Repository URL",
-                        cliProperty = "githubRepo",
-                        sensitive = false,
-                        example = "https://github.com/username/repo.git"
-                    )
+                            val repo = getOrPrompt(
+                                project = project,
+                                propertyName = "GitHub Repository URL",
+                                cliProperty = "githubRepo",
+                                sensitive = false,
+                                example = "https://github.com/username/repo.git"
+                            )
 
-                    val configPath = getOrPrompt(
-                        project = project,
-                        propertyName = "Config Path",
-                        cliProperty = "configPath",
-                        sensitive = false,
-                        example = "site.yml",
-                        default = "site.yml"
-                    )
+                            val configPath = getOrPrompt(
+                                project = project,
+                                propertyName = "Config Path",
+                                cliProperty = "configPath",
+                                sensitive = false,
+                                example = "site.yml",
+                                default = "site.yml"
+                            )
 
-                    project.logger.lifecycle("✓ Bakery configuration completed:")
-                    project.logger.lifecycle("  Username: $username")
-                    project.logger.lifecycle("  Repository: $repo")
-                    project.logger.lifecycle("  Config Path: $configPath")
-                    project.logger.lifecycle("  Token: ${if (token.isNotEmpty()) "***configured***" else "not set"}")
+                            project.logger.lifecycle("✓ Bakery configuration completed:")
+                            project.logger.lifecycle("  Username: $username")
+                            project.logger.lifecycle("  Repository: $repo")
+                            project.logger.lifecycle("  Config Path: $configPath")
+                            project.logger.lifecycle("  Token: ${if (token.isNotEmpty()) "***configured***" else "not set"}")
 
-                    saveConfiguration(project, token, username, repo, configPath)
+                            saveConfiguration(project, token, username, repo, configPath)
 
-                    project.logger.lifecycle("")
-                    project.logger.lifecycle("✓ Configuration saved successfully!")
-                    project.logger.lifecycle("  You can now run: ./gradlew bake")
+                            project.logger.lifecycle("")
+                            project.logger.lifecycle("✓ Configuration saved successfully!")
+                            project.logger.lifecycle("  You can now run: ./gradlew bake")
+                        }
+                    }
                 }
-            }
-        }
 
             }
         }
