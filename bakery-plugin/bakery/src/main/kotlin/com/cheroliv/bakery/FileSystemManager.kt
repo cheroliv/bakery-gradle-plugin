@@ -14,7 +14,6 @@ import org.slf4j.Logger
 import java.io.File
 import java.io.IOException
 import java.net.URI
-import java.util.Properties
 import java.util.jar.JarFile
 import kotlin.text.Charsets.UTF_8
 
@@ -27,15 +26,6 @@ object FileSystemManager {
             // On utilise ignoreCase = true pour gérer .YML
             uri.path?.endsWith(".yml", ignoreCase = true) ?: false
         }.getOrDefault(false)
-
-    fun File.loadProperties(): Properties{
-            val properties = Properties()
-            if (exists())
-                inputStream().use { inputStream ->
-                    properties.load(inputStream)
-                } else throw Exception("Fichier introuvable : $this")
-            return properties
-        }
 
     /**
      * Copie un répertoire de ressources depuis le plugin (JAR ou filesystem) vers un dossier cible
