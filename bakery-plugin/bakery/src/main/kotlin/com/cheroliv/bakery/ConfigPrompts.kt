@@ -1,5 +1,6 @@
 package com.cheroliv.bakery
 
+import com.cheroliv.bakery.BakeryPlugin.Companion.BAKERY_CONFIG_PATH_KEY
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.Console
@@ -136,8 +137,8 @@ object ConfigPrompts {
         }
 
         // Retirer l'ancienne ligne configPath si elle existe
-        properties.removeIf { it.startsWith("bakery.configPath=") }
-        properties.add("bakery.configPath=$configPath")
+        properties.removeIf { it.startsWith("$BAKERY_CONFIG_PATH_KEY=") }
+        properties.add("$BAKERY_CONFIG_PATH_KEY=$configPath")
 
         gradlePropertiesFile.writeText(properties.joinToString("\n"))
 
