@@ -23,7 +23,7 @@ Feature: The initSite task initialize the static site
     And I add the gradle settings file with gradle portal dependencies repository
     And the gradle project does not have 'jbake.properties' file for site
     And the gradle project does not have 'index.html' file for maquette
-    And I add gradle.properties file with the entry bakery.configPath='site.yml'
+    And I add gradle.properties file with the entry bakery.config.path='site.yml'
     When I am executing the task 'initSite'
     Then the project should have a 'site.yml' file for site configuration
     Then the project should have a directory named 'site' who contains 'jbake.properties' file
