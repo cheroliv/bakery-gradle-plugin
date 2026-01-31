@@ -6,7 +6,6 @@ import com.cheroliv.bakery.FileSystemManager.copyResourceDirectory
 import com.cheroliv.bakery.FileSystemManager.createCnameFile
 import com.cheroliv.bakery.FileSystemManager.from
 import com.cheroliv.bakery.FileSystemManager.isYmlUri
-import com.cheroliv.bakery.FileSystemManager.loadProperties
 import com.cheroliv.bakery.FileSystemManager.yamlMapper
 import com.cheroliv.bakery.GitService.GIT_ATTRIBUTES_CONTENT
 import com.cheroliv.bakery.GitService.pushPages
@@ -22,6 +21,7 @@ import java.io.File.separator
 import kotlin.text.Charsets.UTF_8
 
 
+
 class BakeryPlugin : Plugin<Project> {
     companion object {
         const val BAKERY_GROUP = "bakery"
@@ -31,6 +31,7 @@ class BakeryPlugin : Plugin<Project> {
         const val ASCIIDOC_ATTRIBUTES_PROP = "asciidoctor.attributes"
         const val ASCIIDOC_DIAGRAMS_DIRECTORY = "imagesDir=diagrams"
         const val ASCIIDOC_SOURCE_DIR = "sourceDir"
+        const val BAKERY_CONFIG_PATH_KEY = "bakery.config.path"
 
         @Suppress("unused")
         const val CNAME = "CNAME"
@@ -62,11 +63,11 @@ class BakeryPlugin : Plugin<Project> {
             if (!bakeryExtension.configPath.isPresent) {
                 val gradlePropertiesFile = project.layout.projectDirectory.asFile.resolve("gradle.properties")
                 if (gradlePropertiesFile.exists()) {
-                    gradlePropertiesFile.loadProperties().run {
-                        if (keys.contains("bakery.configPath") &&
-                            this["bakery.configPath"].toString().isNotBlank() &&
-                            this["bakery.configPath"].toString().isYmlUri
-                        ) bakeryExtension.configPath.set(this["bakery.configPath"].toString())
+                    project.properties.run {
+                        if (keys.contains(BAKERY_CONFIG_PATH_KEY) &&
+                            this[BAKERY_CONFIG_PATH_KEY].toString().isNotBlank() &&
+                            this[BAKERY_CONFIG_PATH_KEY].toString().isYmlUri
+                        ) bakeryExtension.configPath.set(this[BAKERY_CONFIG_PATH_KEY].toString())
                     }
                 } else project.logger.info("Nor dsl configuration like 'bakery { configPath = file(\"site.yml\").absolutePath }\n' or gradle properties file found")
             }
