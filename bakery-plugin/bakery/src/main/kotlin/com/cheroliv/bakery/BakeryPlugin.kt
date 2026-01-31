@@ -21,7 +21,6 @@ import java.io.File.separator
 import kotlin.text.Charsets.UTF_8
 
 
-
 class BakeryPlugin : Plugin<Project> {
     companion object {
         const val BAKERY_GROUP = "bakery"
@@ -32,8 +31,6 @@ class BakeryPlugin : Plugin<Project> {
         const val ASCIIDOC_DIAGRAMS_DIRECTORY = "imagesDir=diagrams"
         const val ASCIIDOC_SOURCE_DIR = "sourceDir"
         const val BAKERY_CONFIG_PATH_KEY = "bakery.config.path"
-
-        @Suppress("unused")
         const val CNAME = "CNAME"
     }
 
@@ -41,14 +38,13 @@ class BakeryPlugin : Plugin<Project> {
         // Création de la configuration jbakeRuntime
         val jbakeRuntime: Configuration = project.configurations.create("jbakeRuntime").apply {
             description = "Classpath for running Jbake core directly"
-        }
-
-        // Ajout des dépendances à la configuration
-        project.dependencies.apply {
-            add(jbakeRuntime.name, "org.jbake:jbake-core:2.6.7")
-            add(jbakeRuntime.name, "commons-configuration:commons-configuration:1.10")
-            add(jbakeRuntime.name, "org.asciidoctor:asciidoctorj-diagram:3.0.1")
-            add(jbakeRuntime.name, "org.asciidoctor:asciidoctorj-diagram-plantuml:1.2025.3")
+            // Ajout des dépendances à la configuration
+            listOf(
+                "org.jbake:jbake-core:2.6.7",
+                "commons-configuration:commons-configuration:1.10",
+                "org.asciidoctor:asciidoctorj-diagram:3.0.1",
+                "org.asciidoctor:asciidoctorj-diagram-plantuml:1.2025.3"
+            ).forEach { project.dependencies.add(name, it) }
         }
 
         val bakeryExtension = project.extensions.create(
