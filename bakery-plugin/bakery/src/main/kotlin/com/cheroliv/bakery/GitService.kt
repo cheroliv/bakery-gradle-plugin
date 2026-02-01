@@ -16,18 +16,18 @@ import java.io.File
 
 object GitService {
     const val GIT_ATTRIBUTES_CONTENT = """
-                                    #
-                                    # https://help.github.com/articles/dealing-with-line-endings/
-                                    #
-                                    # Linux start script should use lf
-                                    /gradlew        text eol=lf
+    #
+    # https://help.github.com/articles/dealing-with-line-endings/
+    #
+    # Linux start script should use lf
+    /gradlew        text eol=lf
 
-                                    # These are Windows script files and should use crlf
-                                    *.bat           text eol=crlf
+    # These are Windows script files and should use crlf
+    *.bat           text eol=crlf
 
-                                    # Binary files should be left untouched
-                                    *.jar           binary
-                                """
+    # Binary files should be left untouched
+    *.jar           binary
+    """
 
     sealed class FileOperationResult {
         sealed class GitOperationResult {
