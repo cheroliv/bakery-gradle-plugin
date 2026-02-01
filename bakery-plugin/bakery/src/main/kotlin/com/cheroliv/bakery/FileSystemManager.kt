@@ -89,6 +89,7 @@ object FileSystemManager {
                         val relativePath = entry.name.removePrefix(normalizedPath)
                         val targetFile = targetDir.resolve(relativePath)
 
+                        @Suppress("LoggingSimilarMessage")
                         project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
 
                         targetFile.parentFile.mkdirs()
@@ -178,20 +179,13 @@ object FileSystemManager {
             copyRecursively(repoDir, true)
             deleteRecursively()
         }.run {
-            when {
-                !exists() -> logger.info("$name directory successfully deleted.")
-                else -> throw IOException("$name must not exist.")
-            }
+            if (!exists()) logger.info("$name directory successfully deleted.")
+            else throw IOException("$name must not exist.")
         }
         Success
     } catch (e: Exception) {
         Failure(e.message ?: "An error occurred during file copy.")
     }
-
-
-    fun parseSiteConfiguration(yaml: String): SiteConfiguration =
-        yamlMapper.readValue(yaml)
-
 
     val yamlMapper: ObjectMapper
         get() = YAMLFactory()
