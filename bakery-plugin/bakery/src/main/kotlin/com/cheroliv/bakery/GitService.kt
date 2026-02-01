@@ -48,7 +48,7 @@ object GitService {
         git: GitPushConfiguration,
         logger: Logger
     ) {
-        val repoDir = createRepoDir(pathTo(), logger)
+        val repoDir: File = createRepoDir(pathTo(), logger)
         try {
             when (val copyResult = copyBakedFilesToRepo(destPath(), repoDir, logger)) {
                 is Success -> {
@@ -145,12 +145,10 @@ object GitService {
         repoDir: File,
         git: GitPushConfiguration,
         logger: Logger
-    ): RevCommit {
-        val gitRepo = initRepository(repoDir, git.branch, logger)
-        addRemote(gitRepo,  git.repo.repository, logger)
-        addAllFiles(gitRepo, logger)
-        return commitChanges(gitRepo, git.message, logger)
-    }
+    ): RevCommit = initRepository(repoDir, git.branch, logger)
+        .addRemote(git.repo.repository, logger)
+        .addAllFiles(logger)
+        .commitChanges(git.message, logger)
 
     private fun initRepository(
         repoDir: File,
@@ -170,34 +168,34 @@ object GitService {
         return git
     }
 
-    private fun addRemote(
-        git: Git,
+    private fun Git.addRemote(
         remoteUri: String,
         logger: Logger
-    ) {
+    ): Git {
         logger.info("Adding remote '$ORIGIN' with URI '$remoteUri'")
-        git.remoteAdd()
+        remoteAdd()
             .setName(ORIGIN)
             .setUri(URIish(remoteUri))
             .call()
         logger.info("Remote added successfully.")
+        return this
     }
 
-    private fun addAllFiles(git: Git, logger: Logger) {
+    private fun Git.addAllFiles(logger: Logger): Git {
         logger.info("Adding all files to the index")
-        git.add()
+        add()
             .addFilepattern(".")
             .call()
         logger.info("All files added.")
+        return this
     }
 
-    private fun commitChanges(
-        git: Git,
+    private fun Git.commitChanges(
         message: String,
         logger: Logger
     ): RevCommit {
         logger.info("Committing changes with message: \"$message\"")
-        val revCommit = git.commit()
+        val revCommit = commit()
             .setMessage(message)
             .call()
         logger.info("Changes committed: ${revCommit.id.name}")
