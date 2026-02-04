@@ -23,16 +23,14 @@ class TestWorld {
     var exception: Throwable? = null
 
     // Jobs asynchrones en cours
-    private val asyncJobs = mutableListOf<Deferred<*>>()
+    private val asyncJobs = mutableListOf<Deferred<BuildResult>>()
 
     /**
      * Exécute une tâche Gradle de manière asynchrone
      */
     fun executeGradleAsync(vararg tasks: String): Deferred<BuildResult> {
         require(projectDir != null) { "Project directory must be initialized" }
-
         log.info("Starting async Gradle execution: ${tasks.joinToString(" ")}")
-
         return scope.async {
             try {
                 create()
@@ -51,16 +49,16 @@ class TestWorld {
     /**
      * Exécute une tâche Gradle de manière synchrone
      */
-    suspend fun executeGradle(vararg tasks: String): BuildResult = executeGradleAsync(*tasks)
+    suspend fun executeGradle(vararg tasks: String)
+            : BuildResult = executeGradleAsync(*tasks)
         .await()
         .also { buildResult = it }
 
     /**
      * Exécute une action avec un timeout
      */
-    suspend fun <T> withTimeout(seconds: Long, block: suspend () -> T): T = withTimeout(seconds * 1000) {
-        block()
-    }
+    suspend fun <T> withTimeout(seconds: Long, block: suspend () -> T)
+            : T = withTimeout(seconds * 1000) { block() }
 
     /**
      * Attend la fin de toutes les opérations asynchrones
@@ -76,6 +74,7 @@ class TestWorld {
     /**
      * Nettoyage des ressources
      */
+    @Suppress("unused")
     fun cleanup() {
         scope.cancel()
         projectDir?.deleteRecursively()
@@ -92,28 +91,23 @@ class TestWorld {
         pluginId: String = "com.cheroliv.bakery",
         buildScriptContent: String = "bakery { configPath = file(\"site.yml\").absolutePath }"
     ): File {
-        val tempDir = createTempFile("gradle-test-", "").apply {
+        createTempFile("gradle-test-", "").apply {
             delete()
             mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            createConfigFile()
+            projectDir = this
+            return this
         }
-
-        tempDir
-            .resolve("settings.gradle.kts")
-            .apply { createNewFile() }
-            .writeText(
-                "pluginManagement.repositories.gradlePluginPortal()\n" +
-                        "rootProject.name = \"${tempDir.name}\""
-            )
-
-        tempDir
-            .resolve("build.gradle.kts")
-            .apply { createNewFile() }
-            .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
-
-        tempDir.createConfigFile()
-        projectDir = tempDir
-        return tempDir
     }
-
 }
 
