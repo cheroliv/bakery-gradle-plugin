@@ -92,10 +92,7 @@ class TestWorld {
         pluginId: String = "com.cheroliv.bakery",
         buildScriptContent: String = "bakery { configPath = file(\"site.yml\").absolutePath }"
     ): File {
-        val tempDir = createTempFile(
-            "gradle-test-",
-            ""
-        ).apply {
+        val tempDir = createTempFile("gradle-test-", "").apply {
             delete()
             mkdirs()
         }
@@ -103,8 +100,10 @@ class TestWorld {
         tempDir
             .resolve("settings.gradle.kts")
             .apply { createNewFile() }
-            .writeText("pluginManagement.repositories.gradlePluginPortal()\n" +
-                    "rootProject.name = \"${tempDir.name}\"")
+            .writeText(
+                "pluginManagement.repositories.gradlePluginPortal()\n" +
+                        "rootProject.name = \"${tempDir.name}\""
+            )
 
         tempDir
             .resolve("build.gradle.kts")
@@ -115,4 +114,6 @@ class TestWorld {
         projectDir = tempDir
         return tempDir
     }
+
 }
+
