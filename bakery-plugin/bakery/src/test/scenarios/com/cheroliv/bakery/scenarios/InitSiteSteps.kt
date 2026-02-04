@@ -3,21 +3,80 @@
 package com.cheroliv.bakery.scenarios
 
 import com.cheroliv.bakery.BakeConfiguration
-import com.cheroliv.bakery.BakeryPlugin.Companion.BAKERY_CONFIG_PATH_KEY
 import com.cheroliv.bakery.FileSystemManager.yamlMapper
 import com.cheroliv.bakery.FuncTestsConstants.BUILD_FILE
 import com.cheroliv.bakery.FuncTestsConstants.SETTINGS_FILE
 import com.cheroliv.bakery.SiteConfiguration
+import com.cheroliv.bakery.SiteManager.BAKERY_CONFIG_PATH_KEY
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.cucumber.java.en.And
+import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.gradle.testkit.runner.BuildResult
 import kotlin.test.assertTrue
 import kotlin.text.Charsets.UTF_8
 
+
 class InitSiteSteps(private val world: TestWorld) {
 
-    @And("I add a buildScript file with {string} as the config path in the dsl")
+    fun TestWorld.initProjectWithSite(): BuildResult = runBlocking { executeGradle("initSite") }
+
+    @Given("an existing Bakery project using DSL with {string} in {string} directory")
+    fun setProjectWithSiteInitialized(
+        configFileName: String,
+        siteDirectoryName: String,
+    ) {
+        world.createGradleProject()
+        assertThat(world.projectDir).exists()
+        world.projectDir!!
+            .resolve(siteDirectoryName)
+            .run(::assertThat)
+            .describedAs("project directory should not contain directory named '$siteDirectoryName'")
+            .doesNotExist()
+        world.projectDir!!
+            .resolve("maquette")
+            .run(::assertThat)
+            .describedAs("project directory should not contain directory named maquette")
+            .doesNotExist()
+        world.initProjectWithSite()
+            .run(::assertThat)
+
+    }
+
+
+    @And("the project have {string} file for site in {string} directory")
+    fun checkHaveSiteFolder(
+        jbakePropertiesFileName: String,
+        siteDirectoryName: String
+    ) {
+        world.projectDir!!
+            .resolve(siteDirectoryName).run {
+                run(::assertThat)
+                    .describedAs("project directory should contain file named '$siteDirectoryName'")
+                    .exists()
+                    .isDirectory
+                resolve(jbakePropertiesFileName)
+                    .run(::assertThat)
+                    .describedAs("project directory should contain file named '$jbakePropertiesFileName'")
+                    .exists()
+                    .isFile
+            }
+    }
+
+    @And("the gradle project have {string} directory for maquette")
+    fun checkHaveMaquetteFolder(maquetteFolderName: String) {
+        world.projectDir!!
+            .resolve(maquetteFolderName)
+            .run(::assertThat)
+            .describedAs("project directory should contain file named '$maquetteFolderName'")
+            .isDirectory
+            .doesNotExist()
+    }
+
+
+    @And("I add a buildScript file with {string} as the config path in the DSL")
     fun checkBuildScript(configFileName: String) {
         BUILD_FILE
             .run(world.projectDir!!::resolve)
@@ -51,23 +110,22 @@ class InitSiteSteps(private val world: TestWorld) {
     }
 
     @And("the gradle project does not have {string} file for site")
-    fun checkDontHaveSiteFolder(siteFolderName: String) {
+    fun checkDontHaveSiteFolder(siteDirectoryName: String) {
         world.projectDir!!
-            .resolve(siteFolderName)
+            .resolve(siteDirectoryName)
             .run(::assertThat)
-            .describedAs("project directory should not contain file named '$siteFolderName'")
+            .describedAs("project directory should not contain file named '$siteDirectoryName'")
             .doesNotExist()
     }
 
 
     @And("the gradle project does not have {string} file for maquette")
-    fun checkDontHaveMaquetteFolders(maquetteFolderName: String) {
+    fun checkDontHaveMaquetteFolder(maquetteFolderName: String) {
         world.projectDir!!
             .resolve(maquetteFolderName)
             .run(::assertThat)
             .describedAs("project directory should not contain file named '$maquetteFolderName'")
             .doesNotExist()
-
     }
 
     @And("I add gradle.properties file with the entry bakery.config.path={string}")
@@ -131,13 +189,16 @@ class InitSiteSteps(private val world: TestWorld) {
             .isFile()
     }
 
-    @Then("the project should have a directory named {string} who contains index.html file")
-    fun indexHtmlFileShouldBeCreated(siteDirName: String) {
+    @Then("the project should have a directory named {string} to mock site who contains {string} file")
+    fun indexHtmlFileShouldBeCreated(
+        maquetteDirName: String,
+        htmlFileName: String
+    ) {
         world.projectDir!!
-            .resolve("maquette")
-            .resolve("index.html")
+            .resolve(maquetteDirName)
+            .resolve(htmlFileName)
             .run(::assertThat)
-            .describedAs("the $siteDirName directory should contains jbake.properties file")
+            .describedAs("the $maquetteDirName directory should contains jbake.properties file")
             .exists()
             .isFile()
     }
