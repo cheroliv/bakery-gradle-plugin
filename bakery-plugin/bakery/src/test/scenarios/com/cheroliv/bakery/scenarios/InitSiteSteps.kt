@@ -5,7 +5,6 @@ package com.cheroliv.bakery.scenarios
 import com.cheroliv.bakery.BakeConfiguration
 import com.cheroliv.bakery.FileSystemManager.yamlMapper
 import com.cheroliv.bakery.FuncTestsConstants.BUILD_FILE
-import com.cheroliv.bakery.FuncTestsConstants.SETTINGS_FILE
 import com.cheroliv.bakery.SiteConfiguration
 import com.cheroliv.bakery.SiteManager.BAKERY_CONFIG_PATH_KEY
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -21,7 +20,23 @@ import kotlin.text.Charsets.UTF_8
 
 class InitSiteSteps(private val world: TestWorld) {
 
-    fun TestWorld.initProjectWithSite(): BuildResult = runBlocking { executeGradle("initSite") }
+    fun TestWorld.initProjectWithSite(): BuildResult = runBlocking {
+//        executeGradle("-s", "initSite")
+        executeGradle("-s", "tasks").apply {
+            output!!.run(::println)
+        }
+    }
+
+    @And("the output of the task tasks contains {string} from the group {string} and {string}")
+    fun checkInitSiteTaskIsAvailable(
+        taskName: String,
+        taskGroup: String,
+        taskDescription: String,
+    ) = runBlocking {
+        world.executeGradle("-s", "tasks").apply {
+            output!!.run(::println)
+        }
+    }
 
     @Given("an existing Bakery project using DSL with {string} in {string} directory")
     fun setProjectWithSiteInitialized(
@@ -42,7 +57,6 @@ class InitSiteSteps(private val world: TestWorld) {
             .doesNotExist()
         world.initProjectWithSite()
             .run(::assertThat)
-
     }
 
 
@@ -76,9 +90,12 @@ class InitSiteSteps(private val world: TestWorld) {
     }
 
 
-    @And("I add a buildScript file with {string} as the config path in the DSL")
-    fun checkBuildScript(configFileName: String) {
-        BUILD_FILE
+    @And("{string} file use {string} as the config path in the DSL")
+    fun checkBuildScript(
+        buildScriptFileName: String,
+        configFileName: String
+    ) {
+        buildScriptFileName
             .run(world.projectDir!!::resolve)
             .readText(UTF_8)
             .run(::assertThat)
@@ -99,14 +116,22 @@ class InitSiteSteps(private val world: TestWorld) {
             .doesNotExist()
     }
 
-    @And("I add the gradle settings file with gradle portal dependencies repository")
-    fun checkRepositoryManagementInSettingsGradleFile() {
-        SETTINGS_FILE
+    @And("{string} set gradle portal dependencies repository with {string}")
+    fun checkRepositoryManagementInSettingsGradleFile(
+        settingsBuildFileName: String,
+        gradlePluginPortal: String
+    ) {
+        settingsBuildFileName
             .run(world.projectDir!!::resolve)
-            .readText(UTF_8)
+            .apply {
+                run(::assertThat)
+                    .describedAs("project directory should contains file named '$settingsBuildFileName'")
+                    .exists()
+                    .isFile
+            }.readText(UTF_8)
             .run(::assertThat)
             .describedAs("The gradle settings file should contains gradlePortal repository")
-            .contains("pluginManagement.repositories.gradlePluginPortal()")
+            .contains("pluginManagement.repositories.$gradlePluginPortal()")
     }
 
     @And("the gradle project does not have {string} file for site")
