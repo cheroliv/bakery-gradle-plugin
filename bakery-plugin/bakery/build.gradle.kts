@@ -11,6 +11,7 @@ plugins {
 
 group = "com.cheroliv"
 version = libs.plugins.bakery.get().version
+kotlin.jvmToolchain(JavaVersion.VERSION_24.ordinal)
 
 repositories {
     mavenCentral()
@@ -39,8 +40,6 @@ dependencies {
     // Cucumber dependencies
     testImplementation(libs.bundles.cucumber)
 }
-
-kotlin.jvmToolchain(24)
 
 
 tasks.withType<Test> {
