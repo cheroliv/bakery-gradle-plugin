@@ -1,6 +1,8 @@
 package com.cheroliv.bakery.scenarios
 
-import io.cucumber.java.en.*
+import io.cucumber.java.en.Given
+import io.cucumber.java.en.Then
+import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 
@@ -19,8 +21,10 @@ class AsyncSteps(private val world: TestWorld) {
 
     @When("I'm launching the {string} task asynchronously")
     fun launchingAsyncTask(taskName: String) {
-        @Suppress("DeferredResultUnused")
         world.executeGradleAsync(taskName)
+            .run(::assertThat)
+            .describedAs("The task '$taskName' should be successful")
+            .isNotNull
     }
 
     @When("I am waiting for all asynchronous operations to complete")
