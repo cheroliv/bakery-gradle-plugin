@@ -70,7 +70,9 @@ object SiteManager {
                 description = "Initialise site and maquette folders."
 
                 doLast {
-                    val configFile = createAndConfigureSiteYml()
+                    val configFile = project.projectDir.resolve("site.yml").run {
+                        if (exists()) this else createAndConfigureSiteYml()
+                    }
                     setupGitIgnore()
                     setupGitAttributes()
                     copySiteResources(configFile)
