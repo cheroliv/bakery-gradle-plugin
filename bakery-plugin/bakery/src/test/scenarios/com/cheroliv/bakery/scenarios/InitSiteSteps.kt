@@ -32,26 +32,30 @@ class InitSiteSteps(private val world: TestWorld) {
             )
     }
 
-    @Then("after running {string} the task is not available")
-    fun checkInitSiteTaskIsNotAvailableAfterRunning(taskName: String): Unit = runBlocking {
+    @Then("after running {string} the task is not available using {string} configuration")
+    fun checkInitSiteTaskIsNotAvailableAfterRunning(
+        taskName: String,
+        configFileName: String): Unit = runBlocking {
+        val site: SiteConfiguration = world.projectDir!!.resolve(configFileName)
+            .run(yamlMapper::readValue)
         world.projectDir!!
-            .resolve("site")
+            .resolve(site.bake.srcPath)
             .run(::assertThat)
             .describedAs("After $taskName task site directory should exist.")
             .exists()
         world.projectDir!!
-            .resolve("site")
+            .resolve(site.bake.srcPath)
             .resolve("jbake.properties")
             .run(::assertThat)
-            .describedAs("After $taskName task site/jbake.properties file should exist.")
+            .describedAs("After $taskName task ${site.bake.srcPath}/jbake.properties file should exist.")
             .exists()
         world.projectDir!!
-            .resolve("maquette")
+            .resolve(site.pushMaquette.from)
             .run(::assertThat)
             .describedAs("After $taskName task maquette directory should exist.")
             .exists()
         world.projectDir!!
-            .resolve("maquette")
+            .resolve(site.pushMaquette.from)
             .resolve("index.html")
             .run(::assertThat)
             .describedAs("After $taskName task maquette/index.html file should exist.")
@@ -70,8 +74,6 @@ class InitSiteSteps(private val world: TestWorld) {
     fun setProjectWithSiteInitialized(configFileName: String): Unit = runBlocking {
         world.createGradleProject(configFileName)
         assertThat(world.projectDir).exists()
-//        world.projectDir!!.path.run { "project path: $this" }.run(::println)
-//        world.projectDir!!.list().forEach<String>(::println)
         val site = yamlMapper.readValue<SiteConfiguration>(world.projectDir!!.resolve(configFileName))
         site.bake.srcPath
             .run(::assertThat)
