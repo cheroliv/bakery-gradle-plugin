@@ -35,31 +35,23 @@ object FileSystemManager {
      * @param project Le projet Gradle (pour le logging)
      */
     fun copyResourceDirectory(resourcePath: String, targetDir: File, project: Project) {
-        val classLoader = BakeryPlugin::class.java.classLoader
-        val resource = classLoader.getResource(resourcePath)
+        BakeryPlugin::class.java.classLoader.getResource(resourcePath).run {
 
-        project.logger.info("Attempting to copy resource: $resourcePath")
-        project.logger.info("Resource URL: $resource")
+            project.logger.info("Attempting to copy resource: $resourcePath")
+            project.logger.info("Resource URL: $this")
 
-        when {
-            resource == null -> {
+            if (this == null) {
                 val errorMsg = "Resource directory not found: $resourcePath"
                 project.logger.error(errorMsg)
                 throw IllegalArgumentException(errorMsg)
-            }
-
-            resource.protocol == "jar" -> {
+            } else if (protocol == "jar") {
                 project.logger.info("Copying from JAR...")
                 copyFromJar(resourcePath, targetDir, project)
-            }
-
-            resource.protocol == "file" -> {
+            } else if (protocol == "file") {
                 project.logger.info("Copying from file system...")
                 copyFromFileSystem(resourcePath, targetDir, project)
-            }
-
-            else -> {
-                val errorMsg = "Unsupported resource protocol: ${resource.protocol}"
+            } else {
+                val errorMsg = "Unsupported resource protocol: $protocol"
                 project.logger.error(errorMsg)
                 throw IllegalArgumentException(errorMsg)
             }
@@ -72,37 +64,38 @@ object FileSystemManager {
     private fun copyFromJar(resourcePath: String, targetDir: File, project: Project) {
         try {
             // Obtenir le chemin du JAR du plugin
-            val jarUrl = BakeryPlugin::class.java.protectionDomain.codeSource.location
-            project.logger.info("JAR URL: $jarUrl")
+            BakeryPlugin::class.java.protectionDomain.codeSource.location.run {
+                project.logger.info("JAR URL: $this")
 
-            JarFile(File(jarUrl.toURI())).use { jar ->
-                val normalizedPath = resourcePath.removeSuffix("/") + "/"
-                var copiedCount = 0
+                JarFile(File(toURI())).use { jar ->
+                    val normalizedPath = resourcePath.removeSuffix("/") + "/"
+                    var copiedCount = 0
 
-                jar.entries().asSequence()
-                    .filter { entry ->
-                        entry.name.startsWith(normalizedPath) &&
-                                !entry.isDirectory &&
-                                entry.name != normalizedPath
-                    }
-                    .forEach { entry ->
-                        val relativePath = entry.name.removePrefix(normalizedPath)
-                        val targetFile = targetDir.resolve(relativePath)
-
-                        @Suppress("LoggingSimilarMessage")
-                        project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
-
-                        targetFile.parentFile.mkdirs()
-
-                        jar.getInputStream(entry).use { input ->
-                            targetFile.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
+                    jar.entries().asSequence()
+                        .filter { entry ->
+                            entry.name.startsWith(normalizedPath) &&
+                                    !entry.isDirectory &&
+                                    entry.name != normalizedPath
                         }
-                        copiedCount++
-                    }
+                        .forEach { entry ->
+                            val relativePath = entry.name.removePrefix(normalizedPath)
+                            val targetFile = targetDir.resolve(relativePath)
 
-                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
+                            @Suppress("LoggingSimilarMessage")
+                            project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
+
+                            targetFile.parentFile.mkdirs()
+
+                            jar.getInputStream(entry).use { input ->
+                                targetFile.outputStream().use { output ->
+                                    input.copyTo(output)
+                                }
+                            }
+                            copiedCount++
+                        }
+
+                    project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
+                }
             }
         } catch (e: Exception) {
             project.logger.error("Error copying from JAR: ${e.message}", e)
@@ -115,8 +108,7 @@ object FileSystemManager {
      */
     private fun copyFromFileSystem(resourcePath: String, targetDir: File, project: Project) {
         try {
-            val classLoader = BakeryPlugin::class.java.classLoader
-            val resource = classLoader.getResource(resourcePath)
+            val resource = BakeryPlugin::class.java.classLoader.getResource(resourcePath)
                 ?: throw IllegalArgumentException("Resource not found: $resourcePath")
 
             val sourceDir = File(resource.toURI())
