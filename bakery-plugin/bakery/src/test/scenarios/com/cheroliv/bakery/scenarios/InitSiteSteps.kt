@@ -255,7 +255,7 @@ class InitSiteSteps(private val world: TestWorld) {
             .contains(gitAttributesFileContentEOL, gitAttributesFileContentCRLF)
     }
 
-    @Then("with buildScript file without bakery dsl")
+    @Then("with buildScript file without bakery DSL")
     fun checkBuildScriptWithoutDsl() {
         BUILD_FILE.run(world.projectDir!!::resolve).apply {
             delete()
