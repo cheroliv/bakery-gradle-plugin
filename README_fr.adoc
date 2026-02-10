@@ -95,8 +95,21 @@ bakery {
     configPath = file("site.yml").absolutePath
 }
 ----
+=== 4. Initialiser les Répertoires du Site et de la Maquette (`initSite`)
 
-=== 4. Initialiser la configuration (Optionnel)
+Si vous démarrez un nouveau projet ou souhaitez vous assurer que la structure de votre site est correctement configurée, vous pouvez exécuter la tâche `initSite`. Cette tâche va :
+1. Créer un fichier `site.yml` avec les configurations par défaut s'il n'existe pas.
+2. S'assurer que `.gitignore` et `.gitattributes` sont correctement configurés pour le plugin.
+3. Copier les ressources `site` et `maquette` par défaut dans votre projet, fournissant un modèle de base pour commencer.
+
+[source,bash]
+----
+./gradlew initSite
+----
+
+NOTE: Cette tâche est conçue pour être exécutée une seule fois au début d'un projet. L'exécuter sur un projet existant avec les mêmes noms de répertoires pourrait écraser des fichiers si ce n'est pas géré avec soin.
+
+=== 5. Initialiser la configuration (Optionnel)
 
 Le plugin fournit un assistant de configuration interactif pour configurer votre fichier `site.yml` et vos identifiants GitHub :
 
@@ -113,7 +126,7 @@ Cette tâche vous demandera :
 
 Les identifiants seront sauvegardés dans `.github-config` (qui devrait être ajouté au `.gitignore`), et le chemin de configuration sera sauvegardé dans `gradle.properties`.
 
-=== 5. Créer le fichier de configuration
+=== 6. Créer le fichier de configuration
 
 Créez un fichier YAML (par exemple, `site.yml`) à la racine de votre projet. Ce fichier centralise toutes les informations nécessaires au déploiement.
 

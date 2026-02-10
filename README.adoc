@@ -96,7 +96,21 @@ bakery {
 }
 ----
 
-=== 4. Initialize Configuration (Optional)
+=== 4. Initialize Site and Maquette Directories (`initSite`)
+
+If you are starting a new project or want to ensure your site structure is correctly set up, you can run the `initSite` task. This task will:
+1. Create a `site.yml` file with default configurations if it doesn't exist.
+2. Ensure `.gitignore` and `.gitattributes` are correctly configured for the plugin.
+3. Copy default `site` and `maquette` resources into your project, providing a basic template to start with.
+
+[source,bash]
+----
+./gradlew initSite
+----
+
+NOTE: This task is designed to be run once at the beginning of a project. Running it on an existing project with the same directory names might overwrite files if not handled carefully.
+
+=== 5. Initialize Configuration (Optional)
 
 The plugin provides an interactive configuration helper to set up your `site.yml` file and GitHub credentials:
 
@@ -113,7 +127,7 @@ This task will prompt you for:
 
 The credentials will be saved in `.github-config` (which should be added to `.gitignore`), and the configuration path will be saved in `gradle.properties`.
 
-=== 5. Create the Configuration File
+=== 6. Create the Configuration File
 
 Create a YAML file (e.g., `site.yml`) at the root of your project. This file centralizes all the necessary information for deployment.
 
