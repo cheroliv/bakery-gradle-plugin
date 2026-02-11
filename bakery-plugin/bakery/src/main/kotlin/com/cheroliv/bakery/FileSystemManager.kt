@@ -17,7 +17,6 @@ import java.net.URI
 import java.util.jar.JarFile
 import kotlin.text.Charsets.UTF_8
 
-
 object FileSystemManager {
     val String.isYmlUri: Boolean
         get() = runCatching {
@@ -61,99 +60,95 @@ object FileSystemManager {
     /**
      * Copie depuis un JAR
      */
-    private fun copyFromJar(resourcePath: String, targetDir: File, project: Project) {
-        try {
-            // Obtenir le chemin du JAR du plugin
-            BakeryPlugin::class.java.protectionDomain.codeSource.location.run {
-                project.logger.info("JAR URL: $this")
+    private fun copyFromJar(
+        resourcePath: String,
+        targetDir: File,
+        project: Project
+    ) = try {
+        // Obtenir le chemin du JAR du plugin
+        BakeryPlugin::class.java.protectionDomain.codeSource.location.run {
+            project.logger.info("JAR URL: $this")
 
-                JarFile(File(toURI())).use { jar ->
-                    val normalizedPath = resourcePath.removeSuffix("/") + "/"
-                    var copiedCount = 0
+            JarFile(File(toURI())).use { jar ->
+                val normalizedPath = resourcePath.removeSuffix("/") + "/"
+                var copiedCount = 0
 
-                    jar.entries().asSequence()
-                        .filter { entry ->
-                            entry.name.startsWith(normalizedPath) &&
-                                    !entry.isDirectory &&
-                                    entry.name != normalizedPath
+                jar.entries()
+                    .asSequence()
+                    .filter { entry ->
+                        entry.name.startsWith(normalizedPath) &&
+                                !entry.isDirectory &&
+                                entry.name != normalizedPath
+                    }.forEach { entry ->
+                        val relativePath = entry.name.removePrefix(normalizedPath)
+                        val targetFile = targetDir.resolve(relativePath)
+
+                        @Suppress("LoggingSimilarMessage")
+                        project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
+
+                        targetFile.parentFile.mkdirs()
+
+                        jar.getInputStream(entry).use { input ->
+                            targetFile.outputStream().use { output -> input.copyTo(output) }
                         }
-                        .forEach { entry ->
-                            val relativePath = entry.name.removePrefix(normalizedPath)
-                            val targetFile = targetDir.resolve(relativePath)
-
-                            @Suppress("LoggingSimilarMessage")
-                            project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
-
-                            targetFile.parentFile.mkdirs()
-
-                            jar.getInputStream(entry).use { input ->
-                                targetFile.outputStream().use { output ->
-                                    input.copyTo(output)
-                                }
-                            }
-                            copiedCount++
-                        }
-
-                    project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
-                }
+                        copiedCount++
+                    }
+                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
             }
-        } catch (e: Exception) {
-            project.logger.error("Error copying from JAR: ${e.message}", e)
-            throw e
         }
+    } catch (e: Exception) {
+        project.logger.error("Error copying from JAR: ${e.message}", e)
+        throw e
     }
 
     /**
      * Copie depuis le système de fichiers (mode développement)
      */
-    private fun copyFromFileSystem(resourcePath: String, targetDir: File, project: Project) {
-        try {
-            val resource = BakeryPlugin::class.java.classLoader.getResource(resourcePath)
-                ?: throw IllegalArgumentException("Resource not found: $resourcePath")
+    private fun copyFromFileSystem(
+        resourcePath: String,
+        targetDir: File,
+        project: Project
+    ) = try {
+        val resource = BakeryPlugin::class.java.classLoader.getResource(resourcePath)
+            ?: throw IllegalArgumentException("Resource not found: $resourcePath")
 
-            val sourceDir = File(resource.toURI())
-            val destDir = targetDir.resolve(resourcePath)
+        val sourceDir = File(resource.toURI())
+        val destDir = targetDir.resolve(resourcePath)
 
-            project.logger.info("Source: ${sourceDir.absolutePath}")
-            project.logger.info("Destination: ${destDir.absolutePath}")
+        project.logger.info("Source: ${sourceDir.absolutePath}")
+        project.logger.info("Destination: ${destDir.absolutePath}")
 
-            if (!sourceDir.exists()) {
-                throw IllegalArgumentException("Source directory does not exist: ${sourceDir.absolutePath}")
+        if (!sourceDir.exists())
+            throw IllegalArgumentException("Source directory does not exist: ${sourceDir.absolutePath}")
+        if (!sourceDir.isDirectory)
+            throw IllegalArgumentException("Source is not a directory: ${sourceDir.absolutePath}")
+        destDir.parentFile.mkdirs()
+        val copiedCount = sourceDir
+            .walkTopDown()
+            .filter { it.isFile }
+            .count { sourceFile ->
+                val relativePath = sourceFile.relativeTo(sourceDir).path
+                val targetFile = destDir.resolve(relativePath)
+                project.logger.info("Copying: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
+                targetFile.parentFile.mkdirs()
+                sourceFile.copyTo(targetFile, overwrite = true)
+                true
             }
-
-            if (!sourceDir.isDirectory) {
-                throw IllegalArgumentException("Source is not a directory: ${sourceDir.absolutePath}")
-            }
-
-            destDir.parentFile.mkdirs()
-
-            val copiedCount = sourceDir.walkTopDown()
-                .filter { it.isFile }
-                .count { sourceFile ->
-                    val relativePath = sourceFile.relativeTo(sourceDir).path
-                    val targetFile = destDir.resolve(relativePath)
-
-                    project.logger.info("Copying: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
-
-                    targetFile.parentFile.mkdirs()
-                    sourceFile.copyTo(targetFile, overwrite = true)
-                    true
-                }
-
-            project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
-        } catch (e: Exception) {
-            project.logger.error("Error copying from file system: ${e.message}", e)
-            throw e
-        }
+        project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
+    } catch (e: Exception) {
+        project.logger.error("Error copying from file system: ${e.message}", e)
+        throw e
     }
 
     // Publishing logic
     fun createRepoDir(path: String, logger: Logger): File = path.let(::File).apply {
-        if (exists() && !isDirectory) if (delete()) logger.info("$name exists as file and successfully deleted.")
-        else throw "$name exists and must be a directory".run(::IOException)
+        if (exists() && !isDirectory)
+            if (delete()) logger.info("$name exists as file and successfully deleted.")
+            else throw "$name exists and must be a directory".run(::IOException)
 
-        if (exists()) if (deleteRecursively()) logger.info("$name exists as directory and successfully deleted.")
-        else throw "$name exists as a directory and cannot be deleted".run(::IOException)
+        if (exists())
+            if (deleteRecursively()) logger.info("$name exists as directory and successfully deleted.")
+            else throw "$name exists as a directory and cannot be deleted".run(::IOException)
 
         if (!exists()) logger.info("$name does not exist.")
         else throw IOException("$name must not exist anymore.")
@@ -185,7 +180,6 @@ object FileSystemManager {
             .disable(WRITE_DATES_AS_TIMESTAMPS)
             .registerKotlinModule()
 
-
     fun SiteConfiguration.createCnameFile(project: Project) {
         project.layout.buildDirectory.get()
             .asFile
@@ -200,10 +194,7 @@ object FileSystemManager {
     }
 
 
-    fun Project.from(configPath: String): SiteConfiguration {
-        val configFile = file(configPath)
-        return read(configFile)
-    }
+    fun Project.from(configPath: String): SiteConfiguration = read(file(configPath))
 
     fun Project.read(configFile: File): SiteConfiguration = try {
         yamlMapper.readValue(configFile)
