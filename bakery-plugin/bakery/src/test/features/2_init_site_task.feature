@@ -2,6 +2,10 @@
 @cucumber @bakery
 Feature: The initSite task initialize the static site
 
+  # TODO: failed scenarios and priority of DSL over gradle.properties
+
+  # with DSL, without site.yml, without site, without maquette, without gradle.properties
+  # gradle.properties : bakery.config.path='site.yml'
   Scenario: `initSite` task against empty bakery project
     Given a new Bakery project
     And 'build.gradle.kts' file use 'site.yml' as the config path in the DSL
@@ -18,6 +22,8 @@ Feature: The initSite task initialize the static site
     Then the project should have a file named '.gitattributes' who contains 'eol' and 'crlf'
     Then after running 'initSite' the task is not available using 'site.yml' configuration
 
+  # with DSL, with site.yml, without site, without maquette, without gradle.properties
+  # gradle.properties : bakery.config.path='site.yml'
   Scenario: `initSite` task against an existing bakery project with DSL and configuration without site and maquette
     Given an existing empty Bakery project using DSL with 'site.yml' file
     And the output of the task 'tasks' contains 'initSite' from the group 'Bakery' and 'Initialise site and maquette folders.'
@@ -33,6 +39,8 @@ Feature: The initSite task initialize the static site
     Then the project should have a file named '.gitignore' who contains 'site.yml', '.gradle', 'build' and '.kotlin'
     Then the project should have a file named '.gitattributes' who contains 'eol' and 'crlf'
 
+  # without gradle.properties, without DSL, without site.yml, without site, without maquette
+  # gradle.properties : bakery.config.path='site.yml'
   Scenario: `initSite` task against empty bakery project using gradle.properties
     Given a new Bakery project
     And with buildScript file without bakery DSL
