@@ -11,10 +11,17 @@
 <body>
 <div th:replace="menu.thyme::menu"/>
 
-<div class="main-content-wrapper">
-    <div th:replace="~{hero_section.thyme::hero}"/>
-    <div th:replace="~{blog_section.thyme::blog-section}"/>
-</div>
+<!--<div class="main-content-wrapper">-->
+<div th:replace="~{hero_section.thyme::hero}"/>
+<div th:replace="~{blog_section.thyme::blog-section}"/>
+<!--</div>-->
+
+<!-- Scroll to Top Button -->
+<button id="scrollToTopBtn"
+        class="btn btn-primary shadow-sm"
+        aria-label="Retour en haut de page">
+    <i class="bi bi-arrow-up"></i>
+</button>
 
 <!-- Script de mock pour les tests UI (doit être avant script.js) -->
 <script th:inline="javascript">
@@ -37,11 +44,6 @@
 <!-- =============================================================================================================== -->
 <div th:replace="footer.thyme::footer"/>
 <!-- =============================================================================================================== -->
-<!-- Scroll to Top Button -->
-<button id="scrollToTopBtn"
-        class="btn btn-primary shadow-sm"
-        aria-label="Retour en haut de page">
-    <i class="bi bi-arrow-up"></i>
-</button>
+
 </body>
 </html>
