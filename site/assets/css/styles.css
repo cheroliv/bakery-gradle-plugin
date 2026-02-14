@@ -96,11 +96,6 @@ body {
   flex-grow: 1;
 }
 
-.main-content-wrapper {
-  flex-grow: 1;
-  padding-bottom: 5rem;
-}
-
 /* ======================
    Navigation Styles
    ====================== */
